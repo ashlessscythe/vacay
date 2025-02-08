@@ -25,7 +25,12 @@ export async function GET() {
         manager: true,
         admin: true,
         department_id: true,
-        company_id: true
+        company_id: true,
+        companies: {
+          select: {
+            date_format: true
+          }
+        }
       }
     })
 

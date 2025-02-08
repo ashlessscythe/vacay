@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { format } from "date-fns"
-import { useRouter } from "next/navigation"
+import { format, isWithinInterval, parseISO, isBefore } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,42 +38,73 @@ const leaveRequestSchema = z.object({
   dayPartStart: z.string().min(1, "Start day part is required"),
   dayPartEnd: z.string().min(1, "End day part is required"),
   employeeComment: z.string().optional(),
-})
+}).refine((data) => {
+  const start = parseISO(data.dateStart);
+  const end = parseISO(data.dateEnd);
+  return !isBefore(end, start);
+}, {
+  message: "End date cannot be before start date",
+  path: ["dateEnd"],
+});
 
 type LeaveRequestValues = z.infer<typeof leaveRequestSchema>
+
+interface Leave {
+  id: number
+  status: number
+  date_start: string
+  date_end: string
+  employee_comment: string | null
+  leave_types: {
+    name: string
+    color: string
+  }
+}
 
 interface LeaveType {
   id: number
   name: string
   color: string
   use_allowance: boolean
+  use_personal: boolean
 }
 
 interface LeaveRequestFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => Promise<void>
 }
 
-export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) {
-  const router = useRouter()
+export function LeaveRequestForm({ open, onOpenChange, onSuccess }: LeaveRequestFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([])
   const [userId, setUserId] = useState<number | null>(null)
+  const [existingLeaves, setExistingLeaves] = useState<Leave[]>([])
+  const [dateFormat, setDateFormat] = useState("YYYY-MM-DD")
 
-  // Get user ID on mount
+  // Get user ID and existing leaves on mount
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await fetch("/api/user")
-        const data = await response.json()
-        if (data.id) {
-          setUserId(data.id)
+        const [userResponse, leavesResponse] = await Promise.all([
+          fetch("/api/user"),
+          fetch("/api/leaves")
+        ]);
+        const userData = await userResponse.json();
+        const leavesData = await leavesResponse.json();
+        
+        if (userData.id) {
+          setUserId(userData.id);
+          if (userData.companies?.date_format) {
+            setDateFormat(userData.companies.date_format);
+          }
         }
+        setExistingLeaves(leavesData);
       } catch (error) {
-        console.error("Failed to fetch user:", error)
+        console.error("Failed to fetch user data:", error)
       }
     }
-    fetchUser()
+    fetchUserData()
   }, [])
 
   // Initialize form
@@ -82,8 +112,8 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: {
       leaveTypeId: "",
-      dateStart: format(new Date(), "yyyy-MM-dd"),
-      dateEnd: format(new Date(), "yyyy-MM-dd"),
+      dateStart: format(new Date(2025, 1, 8), dateFormat.toLowerCase()),
+      dateEnd: format(new Date(2025, 1, 8), dateFormat.toLowerCase()),
       dayPartStart: "1", // Full day
       dayPartEnd: "1", // Full day
       employeeComment: "",
@@ -104,8 +134,38 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
     fetchLeaveTypes()
   }, [])
 
+  // Check for any overlapping leaves regardless of type
+  const checkOverlap = (startDate: string, endDate: string) => {
+    const newStart = parseISO(startDate);
+    const newEnd = parseISO(endDate);
+
+    // Check against all existing leaves
+    return existingLeaves.some(leave => {
+      const leaveStart = parseISO(leave.date_start);
+      const leaveEnd = parseISO(leave.date_end);
+
+      // Check if any part of the new leave overlaps with existing leave
+      const hasOverlap = (
+        isWithinInterval(newStart, { start: leaveStart, end: leaveEnd }) ||
+        isWithinInterval(newEnd, { start: leaveStart, end: leaveEnd }) ||
+        isWithinInterval(leaveStart, { start: newStart, end: newEnd })
+      );
+
+      return hasOverlap;
+    });
+  };
+
   async function onSubmit(data: LeaveRequestValues) {
     try {
+      // Check for overlapping dates
+      if (checkOverlap(data.dateStart, data.dateEnd)) {
+        form.setError("dateStart", {
+          type: "manual",
+          message: "You already have leave scheduled during this period"
+        });
+        return;
+      }
+
       setIsLoading(true)
       const response = await fetch("/api/leaves", {
         method: "POST",
@@ -121,8 +181,12 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
         throw new Error("Failed to submit leave request")
       }
 
+      // Close modal and refresh data
       onOpenChange(false)
-      router.refresh()
+      if (onSuccess) {
+        await onSuccess()
+      }
+      
     } catch (error) {
       console.error("Error submitting leave request:", error)
     } finally {
@@ -153,8 +217,25 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
                     </SelectTrigger>
                     <SelectContent>
                       {leaveTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.id.toString()}>
-                          {type.name}
+                        <SelectItem 
+                          key={type.id} 
+                          value={type.id.toString()}
+                          className="flex items-center justify-between"
+                        >
+                          <span>{type.name}</span>
+                          <span className={`ml-2 text-xs font-medium ${
+                            type.use_personal 
+                              ? 'text-amber-500'
+                              : type.use_allowance 
+                                ? 'text-green-600' 
+                                : 'text-red-500'
+                          }`}>
+                            {type.use_allowance 
+                              ? type.use_personal 
+                                ? "(Paid - Personal)" 
+                                : "(Paid)"
+                              : "(Unpaid)"}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -172,7 +253,7 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
                   <FormItem>
                     <FormLabel>Start Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -210,7 +291,7 @@ export function LeaveRequestForm({ open, onOpenChange }: LeaveRequestFormProps) 
                   <FormItem>
                     <FormLabel>End Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

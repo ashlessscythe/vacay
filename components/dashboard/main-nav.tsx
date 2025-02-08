@@ -27,7 +27,11 @@ const items = [
   },
 ]
 
-export function MainNav() {
+interface MainNavProps {
+  onRefresh?: () => Promise<void>
+}
+
+export function MainNav({ onRefresh }: MainNavProps) {
   const pathname = usePathname()
   const [showLeaveRequest, setShowLeaveRequest] = useState(false)
 
@@ -51,14 +55,15 @@ export function MainNav() {
         </Link>
       ))}
       <Button
-        variant="outline"
         onClick={() => setShowLeaveRequest(true)}
+        className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
       >
         New Request
       </Button>
       <LeaveRequestForm 
         open={showLeaveRequest} 
-        onOpenChange={setShowLeaveRequest} 
+        onOpenChange={setShowLeaveRequest}
+        onSuccess={onRefresh}
       />
     </nav>
   )

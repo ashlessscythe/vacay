@@ -30,7 +30,7 @@
 ## Phase 3: Core Features (Next Up)
 - [x] Leave Request System
   - [x] Create leave request form
-  - [ ] Implement leave balance calculation
+  - [x] Implement leave balance calculation
   - [x] Add leave request approval workflow
   - [x] Create leave history view
 

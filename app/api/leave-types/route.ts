@@ -43,6 +43,7 @@ export async function GET() {
         name: true,
         color: true,
         use_allowance: true,
+        use_personal: true,
         limit: true,
         auto_approve: true
       }

@@ -1,8 +1,11 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarDays, Clock, Users, Briefcase } from "lucide-react"
-import { useEffect, useState } from "react"
+import { CalendarDays, Clock, Users, Briefcase, Plus } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { LeaveBalance } from "@/components/dashboard/leave-balance"
+import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
+import { Button } from "@/components/ui/button"
 
 interface LeaveType {
   id: number
@@ -33,39 +36,47 @@ interface User {
   department_id: number
 }
 
+type FetchDashboardData = () => Promise<void>;
+
 export default function DashboardPage() {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([])
   const [leaves, setLeaves] = useState<Leave[]>([])
   const [teamMembers, setTeamMembers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [showLeaveRequest, setShowLeaveRequest] = useState(false)
+
+  const fetchDashboardData: FetchDashboardData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [leaveTypesRes, leavesRes, teamRes] = await Promise.all([
+        fetch('/api/leave-types'),
+        fetch('/api/leaves'),
+        fetch('/api/team')
+      ])
+
+      const [leaveTypesData, leavesData, teamData] = await Promise.all([
+        leaveTypesRes.json(),
+        leavesRes.json(),
+        teamRes.json()
+      ])
+
+      setLeaveTypes(leaveTypesData)
+      setLeaves(leavesData)
+      setTeamMembers(teamData)
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Fetch leave types
-        const leaveTypesRes = await fetch('/api/leave-types')
-        const leaveTypesData = await leaveTypesRes.json()
-        setLeaveTypes(leaveTypesData)
-
-        // Fetch leaves
-        const leavesRes = await fetch('/api/leaves')
-        const leavesData = await leavesRes.json()
-        setLeaves(leavesData)
-
-        // Fetch team members
-        const teamRes = await fetch('/api/team')
-        const teamData = await teamRes.json()
-        setTeamMembers(teamData)
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchDashboardData()
-  }, [])
+    window.dashboardRefresh = fetchDashboardData
+    return () => {
+      delete window.dashboardRefresh
+    }
+  }, [fetchDashboardData])
 
   // Calculate pending requests
   const pendingRequests = leaves.filter(leave => leave.status === 1).length
@@ -75,6 +86,7 @@ export default function DashboardPage() {
 
   // Calculate upcoming absences (future leaves)
   const upcomingAbsences = leaves.filter(leave => new Date(leave.date_start) > new Date())
+
   return (
     <div className="space-y-6 relative">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-cyan-50/50 to-teal-50/50 dark:from-blue-950/50 dark:via-cyan-950/50 dark:to-teal-950/50 animate-gradient-slow -z-10 rounded-3xl" />
@@ -88,15 +100,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "..." : (
-                leaveTypes
-                  .filter(type => type.use_allowance)
-                  .reduce((total, type) => total + (type.limit || 0), 0)
-                  .toString() + " days"
+              {loading ? (
+                "..."
+              ) : (
+                <LeaveBalance compact />
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total allowance from all leave types
+              Your current leave balance
             </p>
           </CardContent>
         </Card>
@@ -107,7 +118,18 @@ export default function DashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? "..." : pendingRequests}</div>
+            <div className="text-2xl font-bold text-amber-600">
+              {loading ? (
+                "..."
+              ) : (
+                <div className="flex flex-col">
+                  <span>{pendingRequests} requests</span>
+                  <span className="text-sm font-normal text-gray-500">
+                    <LeaveBalance compact pendingOnly />
+                  </span>
+                </div>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">
               Awaiting approval
             </p>
@@ -140,6 +162,25 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <LeaveBalance />
+          <Button 
+            onClick={() => setShowLeaveRequest(true)}
+            className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Request Leave
+          </Button>
+        </div>
+      </div>
+
+      <LeaveRequestForm 
+        open={showLeaveRequest} 
+        onOpenChange={setShowLeaveRequest}
+        onSuccess={fetchDashboardData}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
