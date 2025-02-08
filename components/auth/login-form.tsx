@@ -100,6 +100,16 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+        <div className="flex justify-end">
+          <Button
+            variant="link"
+            className="px-0 text-sm text-muted-foreground hover:text-primary"
+            onClick={() => router.push("/auth/reset-password")}
+            type="button"
+          >
+            Forgot password?
+          </Button>
+        </div>
         {form.formState.errors.root && (
           <p className="text-sm text-red-500 dark:text-red-400">
             {form.formState.errors.root.message}

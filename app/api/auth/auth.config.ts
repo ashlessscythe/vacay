@@ -1,4 +1,5 @@
-import { AuthOptions } from "next-auth"
+import { AuthOptions, Session, User } from "next-auth"
+import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
@@ -26,10 +27,6 @@ export const authOptions: AuthOptions = {
           throw new Error("Invalid credentials")
         }
 
-        if (!user.activated) {
-          throw new Error("PENDING_ACTIVATION")
-        }
-
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.password
@@ -37,6 +34,10 @@ export const authOptions: AuthOptions = {
 
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials")
+        }
+
+        if (!user.activated) {
+          throw new Error("PENDING_ACTIVATION")
         }
 
         return {
@@ -51,14 +52,26 @@ export const authOptions: AuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
-    error: "/auth/pending",
+    error: "/auth/login",
   },
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours by default
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Only redirect to pending page if the error is PENDING_ACTIVATION
+      if (url.includes("error=PENDING_ACTIVATION")) {
+        return `${baseUrl}/auth/pending`
+      }
+      return url
+    },
+    async jwt({ token, user, trigger, session }: { 
+      token: JWT;
+      user?: User;
+      trigger?: "signIn" | "signUp" | "update";
+      session?: Session & { rememberMe?: boolean };
+    }) {
       if (user) {
         token.role = user.role
       }
@@ -70,7 +83,10 @@ export const authOptions: AuthOptions = {
       
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { 
+      session: Session; 
+      token: JWT & { role?: string };
+    }) {
       if (session?.user) {
         session.user.role = token.role
       }

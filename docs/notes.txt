@@ -1,0 +1,17 @@
+Backup original db in sql format
+pg_dump "${{ secrets.NEON_DB_URL }}" -Fp --no-owner --no-privileges -n public > backups/neon_backup.sql
+
+npx prisma migrate reset --force --skip-seed
+
+should give you table with schema and no data, you can then restore sql file
+psql $DB_URL -f backups/neon_backup.sql
+
+above will copy over migrations from previous db so clear those out
+_prisma_migrations via neon web console delete rows
+
+then you need to mark migrations as applied
+cd into prisma/migrations
+
+npx prisma migrate resolve --applied 12341234123_init --schema=../schema.prisma
+
+

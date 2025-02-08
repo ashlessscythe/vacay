@@ -68,13 +68,17 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     description: 'Clear all data before seeding'
   })
-  .option('use-faker', {
+  .option('count', {
     type: 'number',
-    description: 'Number of associates to create (alias for --user-count)'
+    description: 'Number of associates to create'
   })
   .option('user-count', {
     type: 'number',
-    description: 'Number of associates to create'
+    description: 'Number of associates to create (alias for --count)'
+  })
+  .option('use-faker', {
+    type: 'number',
+    description: 'Number of associates to create (alias for --count)'
   })
   .option('leaves-multiplier', {
     type: 'number',
@@ -88,10 +92,10 @@ const argv = yargs(hideBin(process.argv))
     type: 'number',
     description: 'Company ID to use for seeding data'
   })
-  .option('create-default-user', {
+  .option('no-default-user', {
     type: 'boolean',
     default: false,
-    description: 'Create default user (bob@local.eml) with password "bob"'
+    description: 'Skip creating default admin user if it does not exist'
   })
   .option('uaa', {
     type: 'string',
@@ -162,10 +166,10 @@ async function main() {
   const config = {
     clear: argv.clear || false,
     companyId: argv.companyId || DEFAULT_CONFIG.companyId,
-    associateCount: argv.userCount || argv.useFaker || DEFAULT_CONFIG.userCount,
+    associateCount: argv.count || argv.userCount || argv.useFaker || DEFAULT_CONFIG.userCount,
     leavesMultiplier: argv.leavesMultiplier || DEFAULT_CONFIG.leavesMultiplier,
     departmentCount: argv.departmentCount || DEFAULT_CONFIG.departmentCount,
-    createDefaultUser: argv.createDefaultUser || false,
+    skipDefaultUser: argv.noDefaultUser || false,
     uaaFile: argv.uaa,
     dateRange,
     bankHolidayCount: argv.bankHolidayCount || DEFAULT_CONFIG.bankHolidayCount,
@@ -196,13 +200,16 @@ async function main() {
   // Create departments first
   const departments = await createDepartments(company, config.departmentCount)
 
-  // Create default user if flag is set
-  if (config.createDefaultUser) {
-    const defaultUser = await createDefaultBobUser(company, departments[0])
-    console.log('Created default user:', defaultUser.email)
+  // Always check for default user unless explicitly skipped
+  let defaultUser = null
+  if (!config.skipDefaultUser) {
+    defaultUser = await createDefaultBobUser(company, departments[0])
+    if (defaultUser) {
+      console.log('Default admin user exists:', defaultUser.email)
+    }
   }
 
-  // Create users and related data
+  // Create additional users
   const users = await createUsers(company, departments, config.associateCount)
 
   // Create custom schedules for some users
@@ -239,7 +246,7 @@ async function main() {
     }
     - Bank holidays: ${config.bankHolidayCount}
     - Users with custom schedules: ${Math.round(config.customSchedulePercent)}%
-    ${config.createDefaultUser ? '- Default user (bob@local.eml) created' : ''}`
+    ${!config.skipDefaultUser ? '- Default admin user (bob@local.eml) exists' : ''}`
   )
 }
 
@@ -430,20 +437,21 @@ async function updateUserAllowanceAdjustments(filePath) {
 }
 
 async function createDefaultBobUser(company, department) {
-  // Check if bob@local.eml already exists
+  // Try to find existing bob user
   const existingBob = await prisma.users.findFirst({
     where: { email: 'bob@local.eml' }
   })
 
   if (existingBob) {
-    console.log('Default user bob@local.eml already exists')
     return existingBob
   }
 
+  // Create bob if doesn't exist
+  console.log('Creating default admin user bob@local.eml')
   const defaultUser = await prisma.users.create({
     data: {
       email: 'bob@local.eml',
-      password: hashifyPassword('adminpass'), // Hash the password
+      password: hashifyPassword('adminpass'),
       name: 'Bob',
       lastname: 'Local',
       activated: true,
@@ -536,8 +544,8 @@ async function createUsers(company, departments, count) {
   const users = []
 
   for (let i = 0; i < count; i++) {
-    const isAdmin = i < 2 // Make the first two users admins
-    const isManager = i < 5 // Make the first five users managers
+    const isAdmin = i === 0 // Make only first user admin if any
+    const isManager = i === 0 // Make only first user manager if any
     const password = generateSecurePassword()
 
     const user = await prisma.users.create({

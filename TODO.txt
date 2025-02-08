@@ -15,7 +15,7 @@
 - [x] Implement authentication logic with database
 - [x] Add protected routes middleware
 - [x] Create registration flow
-- [ ] Add password reset functionality
+- [x] Add password reset functionality
 - [x] Implement remember me functionality
 
 ### Authentication Notes

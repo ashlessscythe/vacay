@@ -271,6 +271,8 @@ model users {
   schedules                        schedules[]
   user_allowance_adjustment        user_allowance_adjustment[]
   user_feeds                       user_feeds[]
+  resetToken                       String?                     @unique
+  resetTokenExpires               DateTime?                   @db.Timestamptz(6)
   user_messages                    user_messages[]
   companies                        companies                   @relation(fields: [company_id], references: [id], onDelete: Cascade)
   departments                      departments                 @relation(fields: [department_id], references: [id], onDelete: Cascade)
