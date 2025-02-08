@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import Link from "next/link"
+import { appConfig } from "@/lib/config"
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -7,7 +8,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <header className="container mx-auto px-4 lg:px-6 h-14 flex items-center">
         <Link className="flex items-center" href="/">
           <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            Vacay
+            {appConfig.name}
           </span>
         </Link>
       </header>

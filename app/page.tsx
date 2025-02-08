@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { appConfig } from "@/lib/config"
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <header className="container mx-auto px-4 lg:px-6 h-14 flex items-center border-b">
         <Link className="flex items-center" href="/">
           <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            Vacay
+            {appConfig.name}
           </span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { appConfig } from "@/lib/config"
 
 const items = [
   {
@@ -28,6 +29,9 @@ export function MainNav() {
 
   return (
     <nav className="flex items-center space-x-6 lg:space-x-8">
+      <span className="text-sm font-medium text-muted-foreground">
+        {appConfig.name}
+      </span>
       {items.map((item) => (
         <Link
           key={item.href}
