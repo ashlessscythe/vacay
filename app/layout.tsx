@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { SessionProvider } from "@/components/providers/session-provider"
+import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Footer } from "@/components/ui/footer"
 import { appConfig } from "@/lib/config"
 import "./globals.css"
@@ -26,12 +27,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
-        <SessionProvider>
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </SessionProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SessionProvider>
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

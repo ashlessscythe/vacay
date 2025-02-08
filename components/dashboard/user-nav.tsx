@@ -13,12 +13,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { signOut, useSession } from "next-auth/react"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 export function UserNav() {
   const { data: session } = useSession()
 
   return (
-    <DropdownMenu>
+    <div className="flex items-center gap-2">
+      <ThemeToggle />
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
@@ -54,5 +57,6 @@ export function UserNav() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </div>
   )
 }

@@ -59,6 +59,11 @@
 - [x] Create dashboard layout
 - [x] Add stats cards with animations
 - [x] Implement real-time data fetching
+- [x] Separate dashboard into reusable components
+  - [x] Stats overview component
+  - [x] Leave balance section
+  - [x] Recent leaves component
+  - [x] Team calendar component
 - [ ] Add leave request notifications
 - [ ] Create upcoming absences widget
 - [ ] Add team availability view
@@ -93,6 +98,12 @@
   - [ ] Add reminder system
 
 ## Phase 7: Polish & Optimization
+- [x] Theme Support
+  - [x] Add dark mode support
+  - [x] Implement theme toggle (sun/moon)
+  - [x] Add system theme detection
+  - [x] Ensure consistent styling across themes
+
 - [ ] Performance
   - [ ] Implement caching strategy
   - [ ] Add loading skeletons
