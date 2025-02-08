@@ -5,7 +5,7 @@ import { CalendarDays, Clock, Users, Briefcase, Plus } from "lucide-react"
 import { useEffect, useState, useCallback } from "react"
 import { LeaveBalance } from "@/components/dashboard/leave-balance"
 import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 interface LeaveType {
   id: number
@@ -182,8 +182,8 @@ export default function DashboardPage() {
         onSuccess={fetchDashboardData}
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
           <CardHeader>
             <CardTitle>Recent Leave Requests</CardTitle>
           </CardHeader>

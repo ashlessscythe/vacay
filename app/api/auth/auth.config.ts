@@ -45,6 +45,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           name: `${user.name} ${user.lastname}`,
           role: user.admin ? "ADMIN" : user.manager ? "MANAGER" : "USER",
+          companyId: user.company_id.toString(),
           image: null
         }
       }
@@ -74,6 +75,7 @@ export const authOptions: AuthOptions = {
     }) {
       if (user) {
         token.role = user.role
+        token.companyId = user.companyId
       }
       
       // Update session duration if rememberMe is true
@@ -85,10 +87,11 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }: { 
       session: Session; 
-      token: JWT & { role?: string };
+      token: JWT & { role?: string; companyId?: string };
     }) {
       if (session?.user) {
         session.user.role = token.role
+        session.user.companyId = token.companyId || ''
       }
       return session
     }

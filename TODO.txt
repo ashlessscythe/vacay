@@ -31,7 +31,7 @@
 - [x] Leave Request System
   - [x] Create leave request form
   - [x] Implement leave balance calculation
-  - [x] Add leave request approval workflow
+  - [ ] Add leave request approval workflow
   - [x] Create leave history view
 
 ### Leave Request System Notes
@@ -64,6 +64,9 @@
 - [ ] Add team availability view
 
 ## Phase 5: Admin Features
+- [x] Create admin dashboard page
+- [x] Move bank holiday manager to admin section
+- [x] Add admin navigation links
 - [ ] Company Settings
   - [ ] Create company profile management
   - [ ] Add department configuration
@@ -109,9 +112,9 @@
   - [ ] Create contributing guide
 
 ## Current Focus
-1. Implement leave balance calculation
-2. Add real-time data fetching for dashboard
-3. Create upcoming absences widget
+1. Build calendar component
+2. Implement date range selection
+3. Add team management features
 
 ## Notes
 - Using shadcn UI with New York style

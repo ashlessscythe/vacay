@@ -29,9 +29,10 @@ const items = [
 
 interface MainNavProps {
   onRefresh?: () => Promise<void>
+  userRole?: string
 }
 
-export function MainNav({ onRefresh }: MainNavProps) {
+export function MainNav({ onRefresh, userRole }: MainNavProps) {
   const pathname = usePathname()
   const [showLeaveRequest, setShowLeaveRequest] = useState(false)
 
@@ -54,6 +55,19 @@ export function MainNav({ onRefresh }: MainNavProps) {
           {item.title}
         </Link>
       ))}
+      {userRole === "ADMIN" && (
+        <Link
+          href="/dashboard/admin"
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary",
+            pathname === "/dashboard/admin"
+              ? "text-primary"
+              : "text-muted-foreground"
+          )}
+        >
+          Admin
+        </Link>
+      )}
       <Button
         onClick={() => setShowLeaveRequest(true)}
         className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
