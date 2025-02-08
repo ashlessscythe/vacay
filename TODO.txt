@@ -58,7 +58,7 @@
 ## Phase 4: Dashboard Features
 - [x] Create dashboard layout
 - [x] Add stats cards with animations
-- [ ] Implement real-time data fetching
+- [x] Implement real-time data fetching
 - [ ] Add leave request notifications
 - [ ] Create upcoming absences widget
 - [ ] Add team availability view
