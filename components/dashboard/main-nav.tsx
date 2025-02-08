@@ -1,9 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { appConfig } from "@/lib/config"
+import { Button } from "@/components/ui/button"
+import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
 
 const items = [
   {
@@ -26,6 +29,7 @@ const items = [
 
 export function MainNav() {
   const pathname = usePathname()
+  const [showLeaveRequest, setShowLeaveRequest] = useState(false)
 
   return (
     <nav className="flex items-center space-x-6 lg:space-x-8">
@@ -46,6 +50,16 @@ export function MainNav() {
           {item.title}
         </Link>
       ))}
+      <Button
+        variant="outline"
+        onClick={() => setShowLeaveRequest(true)}
+      >
+        New Request
+      </Button>
+      <LeaveRequestForm 
+        open={showLeaveRequest} 
+        onOpenChange={setShowLeaveRequest} 
+      />
     </nav>
   )
 }

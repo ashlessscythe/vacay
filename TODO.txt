@@ -28,11 +28,20 @@
 - Fixed build issues with Next.js 15 route handlers
 
 ## Phase 3: Core Features (Next Up)
-- [ ] Leave Request System
-  - [ ] Create leave request form
+- [x] Leave Request System
+  - [x] Create leave request form
   - [ ] Implement leave balance calculation
-  - [ ] Add leave request approval workflow
-  - [ ] Create leave history view
+  - [x] Add leave request approval workflow
+  - [x] Create leave history view
+
+### Leave Request System Notes
+- Modal-based leave request form with modern UI
+- Integrated with shadcn components for better UX
+- Support for different leave types with auto-approval
+- Day part selection (Full day, Morning, Afternoon)
+- API endpoints for leave types and requests
+- Secure user validation and authorization
+- Leave history with filtering and sorting
 
 - [ ] Calendar Integration
   - [ ] Build calendar component
@@ -100,9 +109,9 @@
   - [ ] Create contributing guide
 
 ## Current Focus
-1. Complete authentication system implementation
-2. Start building leave request functionality
-3. Implement real-time data fetching for dashboard
+1. Implement leave balance calculation
+2. Add real-time data fetching for dashboard
+3. Create upcoming absences widget
 
 ## Notes
 - Using shadcn UI with New York style
