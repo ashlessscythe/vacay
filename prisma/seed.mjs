@@ -443,7 +443,7 @@ async function createDefaultBobUser(company, department) {
   const defaultUser = await prisma.users.create({
     data: {
       email: 'bob@local.eml',
-      password: hashifyPassword('bob'), // Hash the password
+      password: hashifyPassword('adminpass'), // Hash the password
       name: 'Bob',
       lastname: 'Local',
       activated: true,

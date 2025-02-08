@@ -48,6 +48,7 @@ Thumbs.db
 
 # Prisma
 /prisma/*.db
+/prisma/*.sql
 /prisma/migrations/
 *.sqlite
 *.sqlite-journal
