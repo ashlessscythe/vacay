@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -12,6 +13,7 @@ import * as z from "zod"
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  rememberMe: z.boolean().default(false),
 })
 
 export function LoginForm() {
@@ -25,6 +27,7 @@ export function LoginForm() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   })
 
@@ -35,6 +38,7 @@ export function LoginForm() {
         email: values.email,
         password: values.password,
         redirect: false,
+        rememberMe: values.rememberMe,
       })
 
       if (!result?.error) {
@@ -101,6 +105,22 @@ export function LoginForm() {
             {form.formState.errors.root.message}
           </p>
         )}
+        <FormField
+          control={form.control}
+          name="rememberMe"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <FormLabel className="text-sm font-normal">Remember me</FormLabel>
+            </FormItem>
+          )}
+        />
         <Button
           type="submit" 
           className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400" 

@@ -1,14 +1,20 @@
-import { Metadata } from "next"
-import Link from "next/link"
+'use client'
+
+import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { appConfig } from "@/lib/config"
-
-export const metadata: Metadata = {
-  title: "Account Pending",
-  description: "Your account is pending activation",
-}
+import { useEffect } from "react"
 
 export default function PendingPage() {
+  useEffect(() => {
+    // Sign out user when they land on pending page
+    signOut({ redirect: false })
+  }, [])
+
+  const handleBackToLogin = () => {
+    signOut({ callbackUrl: '/auth/login' })
+  }
+
   return (
     <div className="container relative h-full flex items-center justify-center">
       <div className="relative hidden h-full w-1/3 flex-col bg-muted p-10 text-white lg:flex dark:border-r fixed left-0 top-0 bottom-0">
@@ -47,11 +53,13 @@ export default function PendingPage() {
             </p>
           </div>
           <div className="flex flex-col space-y-4">
-            <Link href="/auth/login">
-              <Button className="w-full" variant="outline">
-                Back to Login
-              </Button>
-            </Link>
+            <Button 
+              className="w-full" 
+              variant="outline"
+              onClick={handleBackToLogin}
+            >
+              Back to Login
+            </Button>
           </div>
         </div>
       </div>

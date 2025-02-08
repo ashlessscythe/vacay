@@ -16,7 +16,7 @@
 - [x] Add protected routes middleware
 - [x] Create registration flow
 - [ ] Add password reset functionality
-- [ ] Implement remember me functionality
+- [x] Implement remember me functionality
 
 ### Authentication Notes
 - Using NextAuth.js for authentication

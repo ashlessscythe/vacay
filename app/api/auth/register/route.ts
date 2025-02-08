@@ -45,8 +45,32 @@ export async function POST(req: Request) {
       },
     })
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user
+    // Exclude password from response
+    const { 
+      id, 
+      name: userName,
+      lastname: userLastname,
+      email: userEmail,
+      company_id: userCompanyId,
+      department_id: userDepartmentId,
+      activated,
+      start_date,
+      created_at,
+      updated_at
+    } = user
+
+    const userWithoutPassword = { 
+      id,
+      name: userName,
+      lastname: userLastname,
+      email: userEmail,
+      company_id: userCompanyId,
+      department_id: userDepartmentId,
+      activated,
+      start_date,
+      created_at,
+      updated_at
+    }
 
     return NextResponse.json(
       {

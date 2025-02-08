@@ -58,38 +58,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [companies, setCompanies] = React.useState<Company[]>([])
   const [departments, setDepartments] = React.useState<Department[]>([])
-
-  useEffect(() => {
-    // Fetch companies
-    fetch("/api/companies")
-      .then((res) => res.json())
-      .then((data) => {
-        setCompanies(data)
-        if (data.length > 0) {
-          form.setValue("company_id", data[0].id)
-          fetchDepartments(data[0].id)
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch companies:", error)
-        toast.error("Failed to load companies")
-      })
-  }, [])
-
-  const fetchDepartments = (companyId: number) => {
-    fetch(`/api/departments?companyId=${companyId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDepartments(data)
-        if (data.length > 0) {
-          form.setValue("department_id", data[0].id)
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch departments:", error)
-        toast.error("Failed to load departments")
-      })
-  }
+  const formRef = React.useRef<ReturnType<typeof useForm<RegisterValues>> | null>(null)
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -102,6 +71,44 @@ export function RegisterForm() {
       department_id: 1, // Default department ID
     },
   })
+
+  // Store form instance in ref to avoid dependency cycles
+  if (!formRef.current) {
+    formRef.current = form
+  }
+
+  const fetchDepartments = React.useCallback(async (companyId: number) => {
+    try {
+      const res = await fetch(`/api/departments?companyId=${companyId}`)
+      const data = await res.json()
+      setDepartments(data)
+      if (data.length > 0 && formRef.current) {
+        formRef.current.setValue("department_id", data[0].id)
+      }
+    } catch (error) {
+      console.error("Failed to fetch departments:", error)
+      toast.error("Failed to load departments")
+    }
+  }, [])
+
+  // Fetch initial companies
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await fetch("/api/companies")
+        const data = await res.json()
+        setCompanies(data)
+        if (data.length > 0 && formRef.current) {
+          formRef.current.setValue("company_id", data[0].id)
+          fetchDepartments(data[0].id)
+        }
+      } catch (error) {
+        console.error("Failed to fetch companies:", error)
+        toast.error("Failed to load companies")
+      }
+    }
+    fetchCompanies()
+  }, [fetchDepartments])
 
   async function onSubmit(data: RegisterValues) {
     setIsLoading(true)
