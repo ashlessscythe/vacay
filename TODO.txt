@@ -44,7 +44,7 @@
 - Leave history with filtering and sorting
 
 - [ ] Calendar Integration
-  - [ ] Build calendar component
+  - [x] Build calendar component
   - [ ] Show team absences
   - [ ] Add bank holiday integration
   - [ ] Implement date range selection

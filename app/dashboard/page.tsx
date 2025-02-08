@@ -5,7 +5,8 @@ import { CalendarDays, Clock, Users, Briefcase, Plus } from "lucide-react"
 import { useEffect, useState, useCallback } from "react"
 import { LeaveBalance } from "@/components/dashboard/leave-balance"
 import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
+import { TeamCalendar } from "@/components/dashboard/calendar"
 
 interface LeaveType {
   id: number
@@ -83,9 +84,6 @@ export default function DashboardPage() {
 
   // Get recent leave requests
   const recentLeaves = leaves.slice(0, 5)
-
-  // Calculate upcoming absences (future leaves)
-  const upcomingAbsences = leaves.filter(leave => new Date(leave.date_start) > new Date())
 
   return (
     <div className="space-y-6 relative">
@@ -217,33 +215,10 @@ export default function DashboardPage() {
 
         <Card className="col-span-3 backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Upcoming Team Absences</CardTitle>
+            <CardTitle>Team Calendar</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
-            ) : upcomingAbsences.length > 0 ? (
-              <div className="space-y-2">
-                {upcomingAbsences.map(leave => (
-                  <div key={leave.id} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-2 h-2 rounded-full" 
-                        style={{ backgroundColor: leave.leave_types.color }} 
-                      />
-                      <span>{leave.leave_types.name}</span>
-                    </div>
-                    <span className="text-muted-foreground">
-                      {new Date(leave.date_start).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No upcoming team absences to display.
-              </p>
-            )}
+            <TeamCalendar />
           </CardContent>
         </Card>
       </div>
