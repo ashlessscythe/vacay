@@ -5,7 +5,8 @@ import { appConfig } from "@/lib/config"
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="container mx-auto px-4 lg:px-6 h-14 flex items-center border-b">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/75 backdrop-blur-sm supports-[backdrop-filter]:bg-background/40 transition-colors duration-200">
+        <div className="container mx-auto px-4 lg:px-6 h-14 flex items-center max-w-[1200px]">
         <Link className="flex items-center" href="/">
           <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
             {appConfig.name}
@@ -15,7 +16,11 @@ export default function Home() {
           <Link className="text-sm font-medium hover:underline underline-offset-4" href="/auth/login">
             Sign In
           </Link>
+          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/auth/register">
+            Register
+          </Link>
         </nav>
+        </div>
       </header>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 relative overflow-hidden">
@@ -34,7 +39,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-x-4">
-                <Link href="/auth/login">
+                <Link href="/auth/register">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
                     Get Started
                   </Button>

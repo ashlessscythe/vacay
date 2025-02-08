@@ -18,13 +18,16 @@ export const authOptions: AuthOptions = {
 
         const user = await prisma.users.findFirst({
           where: {
-            email: credentials.email,
-            activated: true
+            email: credentials.email
           }
         })
 
         if (!user || !user?.password) {
           throw new Error("Invalid credentials")
+        }
+
+        if (!user.activated) {
+          throw new Error("PENDING_ACTIVATION")
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -48,6 +51,7 @@ export const authOptions: AuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
+    error: "/auth/pending",
   },
   session: {
     strategy: "jwt"

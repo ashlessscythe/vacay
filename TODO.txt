@@ -14,7 +14,7 @@
 - [x] Style auth pages with consistent theme
 - [x] Implement authentication logic with database
 - [x] Add protected routes middleware
-- [ ] Create registration flow
+- [x] Create registration flow
 - [ ] Add password reset functionality
 - [ ] Implement remember me functionality
 

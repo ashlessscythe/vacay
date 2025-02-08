@@ -1,9 +1,14 @@
-import { Suspense } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LoginForm } from "@/components/auth/login-form"
+import { Metadata } from "next"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { appConfig } from "@/lib/config"
 
-export default function LoginPage() {
+export const metadata: Metadata = {
+  title: "Account Pending",
+  description: "Your account is pending activation",
+}
+
+export default function PendingPage() {
   return (
     <div className="container relative h-full flex items-center justify-center">
       <div className="relative hidden h-full w-1/3 flex-col bg-muted p-10 text-white lg:flex dark:border-r fixed left-0 top-0 bottom-0">
@@ -33,22 +38,21 @@ export default function LoginPage() {
       </div>
       <div className="w-full flex items-center justify-center lg:w-2/3 lg:ml-auto">
         <div className="w-full max-w-[400px] px-4">
-          <Card className="border-0 shadow-lg backdrop-blur-sm bg-white/50 dark:bg-gray-950/50">
-      <CardHeader className="space-y-1">
-        <div className="space-y-2">
-          <h1 className="text-sm font-medium text-muted-foreground">{appConfig.name}</h1>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent">Sign in</CardTitle>
-        </div>
-        <CardDescription>
-          Enter your email and password to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LoginForm />
-        </Suspense>
-      </CardContent>
-          </Card>
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Account Pending Activation
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Your account is currently pending activation by an administrator. You will be notified via email once your account has been activated.
+            </p>
+          </div>
+          <div className="flex flex-col space-y-4">
+            <Link href="/auth/login">
+              <Button className="w-full" variant="outline">
+                Back to Login
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -1,9 +1,13 @@
-import { Suspense } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LoginForm } from "@/components/auth/login-form"
-import { appConfig } from "@/lib/config"
+import { Metadata } from "next"
+import Link from "next/link"
+import { RegisterForm } from "@/components/auth/register-form"
 
-export default function LoginPage() {
+export const metadata: Metadata = {
+  title: "Register",
+  description: "Create a new account",
+}
+
+export default function RegisterPage() {
   return (
     <div className="container relative h-full flex items-center justify-center">
       <div className="relative hidden h-full w-1/3 flex-col bg-muted p-10 text-white lg:flex dark:border-r fixed left-0 top-0 bottom-0">
@@ -21,7 +25,7 @@ export default function LoginPage() {
           >
             <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
           </svg>
-          {appConfig.name}
+          Vacay
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -32,23 +36,25 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="w-full flex items-center justify-center lg:w-2/3 lg:ml-auto">
-        <div className="w-full max-w-[400px] px-4">
-          <Card className="border-0 shadow-lg backdrop-blur-sm bg-white/50 dark:bg-gray-950/50">
-      <CardHeader className="space-y-1">
-        <div className="space-y-2">
-          <h1 className="text-sm font-medium text-muted-foreground">{appConfig.name}</h1>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent">Sign in</CardTitle>
-        </div>
-        <CardDescription>
-          Enter your email and password to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LoginForm />
-        </Suspense>
-      </CardContent>
-          </Card>
+        <div className="w-full max-w-[450px] px-4">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Create an account
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your details below to create your account
+            </p>
+          </div>
+          <RegisterForm />
+          <p className="px-8 text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

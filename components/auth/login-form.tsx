@@ -40,6 +40,8 @@ export function LoginForm() {
       if (!result?.error) {
         router.push(callbackUrl)
         router.refresh()
+      } else if (result.error === "PENDING_ACTIVATION") {
+        router.push("/auth/pending")
       } else {
         form.setError("root", { 
           message: "Invalid email or password" 
