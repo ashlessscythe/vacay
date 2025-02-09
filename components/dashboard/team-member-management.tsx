@@ -17,7 +17,7 @@ import { User } from "@/lib/types/user"
 
 interface TeamMemberManagementProps {
   members: User[]
-  departments: { id: string; name: string }[]
+  departments: { id: number; name: string }[]
   onAddMember: (data: { email: string; department_id: number; role: "admin" | "manager" | "employee" }) => Promise<void>
   onUpdateMember: (userId: number, data: { department_id?: number; role?: "admin" | "manager" | "employee" }) => Promise<void>
   onRemoveMember: (userId: number) => Promise<void>
@@ -79,7 +79,7 @@ export function TeamMemberManagement({
                 <Select 
                   value={selectedDepartment?.toString() || ""} 
                   onValueChange={(value) => setSelectedDepartment(parseInt(value))}
->
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
@@ -141,11 +141,13 @@ export function TeamMemberManagement({
                   onValueChange={(value) => onUpdateMember(member.id, { department_id: parseInt(value) })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
+                    <SelectValue placeholder="Select department">
+                      {member.departments?.name}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
                         {dept.name}
                       </SelectItem>
                     ))}

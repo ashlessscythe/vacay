@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -19,8 +19,15 @@ const formSchema = z.object({
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || `${window.location.origin}/dashboard`
+  const [callbackUrl, setCallbackUrl] = useState<string>("/dashboard")
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const searchCallbackUrl = searchParams.get("callbackUrl")
+    if (typeof window !== "undefined") {
+      setCallbackUrl(searchCallbackUrl || `${window.location.origin}/dashboard`)
+    }
+  }, [searchParams])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

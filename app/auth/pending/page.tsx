@@ -3,14 +3,8 @@
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { appConfig } from "@/lib/config"
-import { useEffect } from "react"
 
 export default function PendingPage() {
-  useEffect(() => {
-    // Sign out user when they land on pending page
-    signOut({ redirect: false })
-  }, [])
-
   const handleBackToLogin = () => {
     signOut({ callbackUrl: '/auth/login' })
   }
@@ -53,8 +47,8 @@ export default function PendingPage() {
             </p>
           </div>
           <div className="flex flex-col space-y-4">
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               variant="outline"
               onClick={handleBackToLogin}
             >

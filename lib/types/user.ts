@@ -10,4 +10,8 @@ export interface User {
   activated: boolean;
   start_date: Date;
   end_date?: Date;
+  departments?: {
+    id: number;
+    name: string;
+  };
 }

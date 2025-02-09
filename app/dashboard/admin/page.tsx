@@ -1,10 +1,12 @@
 import BankHolidayManager from "@/components/dashboard/bank-holiday-manager"
 import { CompanySettings } from "@/components/dashboard/company-settings"
-import { TeamMemberManagementContainer } from "@/components/dashboard/team-member-management-container"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/auth.config"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { Card } from "@/components/ui/card"
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
@@ -19,14 +21,6 @@ export default async function AdminPage() {
   if (!user?.admin) {
     redirect("/dashboard")
   }
-
-  const departments = await prisma.departments.findMany({
-    where: { company_id: user.company_id },
-    select: {
-      id: true,
-      name: true,
-    },
-  })
 
   const company = await prisma.companies.findUnique({
     where: { id: user.company_id },
@@ -44,9 +38,21 @@ export default async function AdminPage() {
             is_team_view_hidden: company?.is_team_view_hidden ?? false
           }}
         />
-        <TeamMemberManagementContainer 
-          departments={departments.map(d => ({ id: d.id.toString(), name: d.name }))}
-        />
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium">Team Members</h3>
+            <p className="text-sm text-muted-foreground">Manage your team members and their roles</p>
+          </div>
+          <Link href="/dashboard/team/members" passHref>
+            <Button asChild>
+              <span>
+                Manage Team Members
+              </span>
+            </Button>
+          </Link>
+        </div>
+      </Card>
         <BankHolidayManager />
       </div>
     </div>

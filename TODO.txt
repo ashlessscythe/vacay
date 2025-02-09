@@ -36,6 +36,9 @@
 - Added Suspense boundary for login form to handle client-side hooks
 - Fixed build issues with Next.js 15 route handlers
 - Fixed login redirect loop by handling redirects in login form
+- Fixed pending user redirection loop by removing auto sign-out in pending page
+- Fixed login form window reference error by using useEffect for callback URL
+- Added error page handler to redirect PENDING_ACTIVATION errors to pending page with proper Suspense boundary
 - Improved error handling for unauthorized access
 - Added proper array type checking for leaves data
 - Fixed URL construction for auth redirects using protocol and host
@@ -68,7 +71,7 @@
   - [x] Add bank holiday integration
   - [ ] Implement date range selection
 
-- [ ] Team Management
+- [x] Team Management
   - [x] Create team view
   - [x] Add role-based access control for team view
   - [x] Add department filtering
@@ -148,7 +151,13 @@
 ## Current Focus
 1. Add department filtering to team view
 2. Implement manager approvals
-3. Add team member management
+3. Implement leave request notifications
+
+## Recent Updates
+- Moved team member management to dedicated page
+  - Created new /team/members page with full management functionality
+  - Added "Manage Members" card to team dashboard
+  - Improved code organization by moving container logic to page level
 
 ## Recent Updates
 - Centralized types into lib/types directory

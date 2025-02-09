@@ -1,20 +1,34 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { TeamMemberManagement } from "./team-member-management"
+import { TeamMemberManagement } from "@/components/dashboard/team-member-management"
 import { User } from "@/lib/types/user"
 import { toast } from "@/hooks/use-toast"
 
-interface TeamMemberManagementContainerProps {
-  departments: { id: string; name: string }[]
-}
-
-export function TeamMemberManagementContainer({ departments }: TeamMemberManagementContainerProps) {
+export default function MembersPage() {
   const [members, setMembers] = useState<User[]>([])
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([])
 
   useEffect(() => {
+    fetchDepartments()
     fetchMembers()
   }, [])
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch("/api/team/departments")
+      if (!response.ok) throw new Error("Failed to fetch departments")
+      const data = await response.json()
+      setDepartments(data)
+    } catch (error) {
+      console.error("Error fetching departments:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load departments",
+        variant: "destructive",
+      })
+    }
+  }
 
   const fetchMembers = async () => {
     try {
@@ -103,7 +117,7 @@ export function TeamMemberManagementContainer({ departments }: TeamMemberManagem
   return (
     <TeamMemberManagement
       members={members}
-      departments={departments}
+      departments={departments.map(d => ({ id: parseInt(d.id), name: d.name }))}
       onAddMember={handleAddMember}
       onUpdateMember={handleUpdateMember}
       onRemoveMember={handleRemoveMember}
