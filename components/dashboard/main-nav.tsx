@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { appConfig } from "@/lib/config"
 import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
 
 interface MainNavProps {
@@ -62,12 +63,13 @@ export function MainNav({ onRefresh, userRole, isTeamViewHidden }: MainNavProps)
           {item.title}
         </Link>
       ))}
-      <Button
-        onClick={() => setShowLeaveRequest(true)}
-        className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
-      >
-        New Request
-      </Button>
+        <Button 
+          onClick={() => setShowLeaveRequest(true)}
+          className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Request Leave
+        </Button>
       <LeaveRequestForm 
         open={showLeaveRequest} 
         onOpenChange={setShowLeaveRequest}

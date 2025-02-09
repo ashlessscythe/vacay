@@ -51,7 +51,7 @@ const CellPopover = React.memo(({ dayLeave, member, onRefresh, isManager }: Cell
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [showApproval, setShowApproval] = useState<boolean>(false)
   const triggerRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleMouseEnter = useCallback(() => {
     timeoutRef.current = setTimeout(() => {

@@ -18,6 +18,14 @@
 - [x] Add password reset functionality
 - [x] Implement remember me functionality
 
+### Error Handling Notes
+- Added fallbacks for API responses that might be undefined
+- Improved type safety with Array.isArray checks
+- Ensured consistent empty array initialization
+- Fixed middleware redirect loop by improving public route matching
+- Fixed calendar popover timeout type error for better TypeScript compliance
+- Fixed invalid URL construction in middleware by using proper base URL
+
 ### Authentication Notes
 - Using NextAuth.js for authentication
 - JWT strategy with credentials provider
@@ -26,6 +34,10 @@
 - Auth configuration moved to separate config file for better organization
 - Added Suspense boundary for login form to handle client-side hooks
 - Fixed build issues with Next.js 15 route handlers
+- Fixed login redirect loop by handling redirects in login form
+- Improved error handling for unauthorized access
+- Added proper array type checking for leaves data
+- Fixed URL construction for auth redirects using protocol and host
 
 ## Phase 3: Core Features (Next Up)
 - [x] Leave Request System
@@ -66,6 +78,7 @@
   - [x] Leave balance section
   - [x] Recent leaves component
   - [x] Team calendar component
+- [x] Organize dashboard layout horizontally
 - [ ] Add leave request notifications
 - [ ] Create upcoming absences widget
 - [ ] Add team availability view

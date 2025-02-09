@@ -41,6 +41,7 @@ type FetchDashboardData = () => Promise<void>;
 
 export default function DashboardPage() {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([])
+  // Initialize leaves as empty array and ensure it stays an array even after failed fetch
   const [leaves, setLeaves] = useState<Leave[]>([])
   const [teamMembers, setTeamMembers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,7 +63,7 @@ export default function DashboardPage() {
       ])
 
       setLeaveTypes(leaveTypesData)
-      setLeaves(leavesData)
+      setLeaves(leavesData || [])
       setTeamMembers(teamData)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -79,11 +80,11 @@ export default function DashboardPage() {
     }
   }, [fetchDashboardData])
 
-  // Calculate pending requests
-  const pendingRequests = leaves.length !== 0 ? leaves.filter(leave => leave.status === 1).length : 0
+  // Calculate pending requests (ensure leaves is always an array)
+  const pendingRequests = Array.isArray(leaves) ? leaves.filter(leave => leave.status === 1).length : 0
 
-  // Get recent leave requests
-  const recentLeaves = leaves.slice(0, 5)
+  // Get recent leave requests (ensure leaves is always an array)
+  const recentLeaves = Array.isArray(leaves) ? leaves.slice(0, 5) : []
 
   return (
     <div className="space-y-6 relative">
@@ -97,7 +98,10 @@ export default function DashboardPage() {
         leaveTypesCount={leaveTypes.length}
       />
 
-      <LeaveBalanceSection onRequestLeave={() => setShowLeaveRequest(true)} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <LeaveBalanceSection />
+        <RecentLeaves loading={loading} leaves={recentLeaves} />
+      </div>
 
       <LeaveRequestForm 
         open={showLeaveRequest} 
@@ -105,10 +109,7 @@ export default function DashboardPage() {
         onSuccess={fetchDashboardData}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <RecentLeaves loading={loading} leaves={recentLeaves} />
-        
-        <Card className="col-span-3 backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
+      <Card className="backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
           <CardHeader>
             <CardTitle>Team Calendar</CardTitle>
           </CardHeader>
@@ -116,7 +117,6 @@ export default function DashboardPage() {
             <TeamCalendar />
           </CardContent>
         </Card>
-      </div>
     </div>
   )
 }

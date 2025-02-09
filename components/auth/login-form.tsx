@@ -37,7 +37,7 @@ export function LoginForm() {
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
-        redirect: true,
+        redirect: false,
         callbackUrl,
         rememberMe: values.rememberMe,
       })
@@ -49,6 +49,8 @@ export function LoginForm() {
         form.setError("root", { 
           message: "Invalid email or password" 
         })
+      } else {
+        router.push(callbackUrl)
       }
     } catch (error) {
       console.error(error)
