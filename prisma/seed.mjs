@@ -674,7 +674,14 @@ async function createUsers(company, departments, count) {
         }
       }
     })
+    const dept = await prisma.users.findFirst({
+      where: { email: user.email },
+      include: { departments: true },
+    })
+    const deptName = dept?.departments?.name; 
+
     console.log(`Created user ${i + 1} of ${count}`)
+    console.log(`Dept: ${deptName}`)
     console.log(`e: ${user.email} p: ${password}`)
     users.push(user)
   }
