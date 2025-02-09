@@ -51,38 +51,52 @@ const CellPopover = React.memo(({ dayLeave, member, onRefresh, isManager }: Cell
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [showApproval, setShowApproval] = useState<boolean>(false)
   const triggerRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleMouseEnter = useCallback(() => {
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(true);
-    }, 500);
-  }, []);
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+    }
+    openTimeoutRef.current = setTimeout(() => {
+      setIsOpen(true)
+    }, 200)
+  }, [])
 
   const handleMouseLeave = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current)
     }
-    setIsOpen(false);
-  }, []);
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false)
+    }, 300)
+  }, [])
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsOpen(open);
-    if (!open && timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+  const handleContentMouseEnter = useCallback(() => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
     }
-  }, []);
+  }, [])
+
+  const handleContentMouseLeave = useCallback(() => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false)
+    }, 300)
+  }, [])
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (openTimeoutRef.current) {
+        clearTimeout(openTimeoutRef.current)
       }
-    };
-  }, []);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
 
   return (
-    <Popover open={isOpen} onOpenChange={handleOpenChange}>
+    <Popover open={isOpen}>
       <PopoverTrigger asChild>
         <div 
           ref={triggerRef}
@@ -91,7 +105,11 @@ const CellPopover = React.memo(({ dayLeave, member, onRefresh, isManager }: Cell
           onMouseLeave={handleMouseLeave}
         />
       </PopoverTrigger>
-      <PopoverContent className="w-64">
+      <PopoverContent 
+        className="w-64" 
+        onMouseEnter={handleContentMouseEnter}
+        onMouseLeave={handleContentMouseLeave}
+      >
         <div className="grid gap-2">
           <div className="space-y-1">
             <div className="font-medium leading-none">{member.name}</div>
@@ -231,7 +249,7 @@ export function TeamCalendarGrid() {
     }
 
     return { className: "bg-green-100 dark:bg-green-900/30" }
-  }, [selectedDepartment])
+  }, [])
 
   // Get unique leave types for legend
   const leaveTypes = useMemo(() => {
@@ -286,7 +304,7 @@ export function TeamCalendarGrid() {
     } finally {
       setLoading(false)
     }
-  }, [monthStart, monthEnd, monthCacheKey])
+  }, [monthStart, monthEnd, monthCacheKey, selectedDepartment])
 
   // Fetch data when month changes
   useEffect(() => {

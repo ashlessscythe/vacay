@@ -2,6 +2,13 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { prisma } from "@/lib/prisma"
 import { authOptions } from "../../auth/auth.config"
+import { z } from "zod"
+
+// Validation schema for leave approval
+const approvalSchema = z.object({
+  leaveId: z.number(),
+  approved: z.boolean()
+})
 
 export async function GET(request: Request) {
   try {
@@ -129,6 +136,103 @@ export async function GET(request: Request) {
     return NextResponse.json(formattedData)
   } catch (error) {
     console.error("[TEAM_LEAVES]", error)
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    // Parse and validate request body
+    const body = await request.json()
+    const result = approvalSchema.safeParse(body)
+    if (!result.success) {
+      return new NextResponse("Invalid request body", { status: 400 })
+    }
+
+    const { leaveId, approved } = result.data
+
+    // Get current user with their roles and department
+    const currentUser = await prisma.users.findFirst({
+      where: { 
+        email: session.user.email as string,
+        activated: true
+      },
+      select: { 
+        id: true,
+        department_id: true,
+        admin: true,
+        manager: true
+      }
+    })
+
+    if (!currentUser) {
+      return new NextResponse("User not found", { status: 404 })
+    }
+
+    // Check if user is manager or admin
+    if (!currentUser.manager && !currentUser.admin) {
+      return new NextResponse("Permission denied", { status: 403 })
+    }
+
+    // Get supervised departments
+    const supervisedDepartments = await prisma.department_supervisors.findMany({
+      where: {
+        user_id: currentUser.id
+      },
+      select: {
+        department_id: true
+      }
+    })
+
+    // Get leave request with user's department
+    const leave = await prisma.leaves.findFirst({
+      where: {
+        id: leaveId
+      },
+      include: {
+        users_leaves_user_idTousers: {
+          select: {
+            department_id: true
+          }
+        }
+      }
+    })
+
+    if (!leave) {
+      return new NextResponse("Leave request not found", { status: 404 })
+    }
+
+    // Check if user has permission to approve this leave
+    const hasPermission = currentUser.admin || 
+      (currentUser.manager && (
+        leave.users_leaves_user_idTousers.department_id === currentUser.department_id ||
+        supervisedDepartments.some(d => d.department_id === leave.users_leaves_user_idTousers.department_id)
+      ))
+
+    if (!hasPermission) {
+      return new NextResponse("Permission denied", { status: 403 })
+    }
+
+    // Update leave status
+    const updatedLeave = await prisma.leaves.update({
+      where: {
+        id: leaveId
+      },
+      data: {
+        status: approved ? 1 : 2, // 1 = approved, 2 = rejected
+        decided_at: new Date(),
+        approver_id: currentUser.id
+      }
+    })
+
+    return NextResponse.json(updatedLeave)
+  } catch (error) {
+    console.error("[TEAM_LEAVES_APPROVAL]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }

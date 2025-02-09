@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -21,22 +22,28 @@ interface LeaveApprovalProps {
 export function LeaveApproval({ leaveId, open, onOpenChange, onSuccess }: LeaveApprovalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [comment, setComment] = useState("")
+  const { toast } = useToast()
 
   const handleAction = async (approved: boolean) => {
     try {
       setIsLoading(true)
-      const response = await fetch(`/api/leaves/${leaveId}/approve`, {
+      const response = await fetch(`/api/team/leaves`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          approved,
-          comment
+          leaveId,
+          approved
         }),
       })
 
       if (!response.ok) {
         const error = await response.text()
-        throw new Error(error || "Failed to update leave request")
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error || "Failed to update leave request"
+        })
+        return
       }
 
       onOpenChange(false)
@@ -44,6 +51,11 @@ export function LeaveApproval({ leaveId, open, onOpenChange, onSuccess }: LeaveA
         await onSuccess()
       }
     } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred while updating the leave request"
+      })
       console.error("Error updating leave request:", error)
     } finally {
       setIsLoading(false)

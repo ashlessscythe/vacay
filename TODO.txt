@@ -39,6 +39,8 @@
 - Improved error handling for unauthorized access
 - Added proper array type checking for leaves data
 - Fixed URL construction for auth redirects using protocol and host
+- Fixed login redirect to dashboard by awaiting router navigation
+- Improved NextAuth URL handling and redirect logic for better reliability
 
 ## Phase 3: Core Features (Next Up)
 - [x] Leave Request System
@@ -57,6 +59,7 @@
 - Leave history with filtering and sorting
 - Department-based access control for approvals
 - Added support for department supervisors in approval workflow
+- Fixed team calendar popup timeout behavior for better reliability
 
 - [ ] Calendar Integration
   - [x] Build calendar component
@@ -69,7 +72,8 @@
   - [x] Create team view
   - [x] Add role-based access control for team view
   - [x] Add department filtering
-  - [ ] Implement manager approvals
+  - [x] Implement manager approvals
+  - [x] Verify team view permission filtering
   - [ ] Add team member management
 
 ## Phase 4: Dashboard Features

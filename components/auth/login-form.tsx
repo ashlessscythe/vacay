@@ -19,7 +19,7 @@ const formSchema = z.object({
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const callbackUrl = searchParams.get("callbackUrl") || `${window.location.origin}/dashboard`
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -38,7 +38,7 @@ export function LoginForm() {
         email: values.email,
         password: values.password,
         redirect: false,
-        callbackUrl,
+        callbackUrl: callbackUrl,
         rememberMe: values.rememberMe,
       })
 
@@ -50,7 +50,7 @@ export function LoginForm() {
           message: "Invalid email or password" 
         })
       } else {
-        router.push(callbackUrl)
+        await router.push(callbackUrl)
       }
     } catch (error) {
       console.error(error)

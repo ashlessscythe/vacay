@@ -5,6 +5,18 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 
 export const authOptions: AuthOptions = {
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -60,12 +72,15 @@ export const authOptions: AuthOptions = {
     maxAge: 24 * 60 * 60, // 24 hours by default
   },
   callbacks: {
-    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
-      // Only redirect to pending page if the error is PENDING_ACTIVATION
+    async redirect({ url, baseUrl }) {
       if (url.includes("error=PENDING_ACTIVATION")) {
         return `${baseUrl}/auth/pending`
       }
-      return url
+      // Ensure we always return to dashboard after login
+      if (url.includes("/dashboard")) {
+        return url.startsWith("http") ? url : `${baseUrl}/dashboard`
+      }
+      return url.startsWith("http") ? url : `${baseUrl}${url}`
     },
     async jwt({ token, user, trigger, session }: { 
       token: JWT;
