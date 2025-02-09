@@ -8,6 +8,7 @@ export default withAuth(
     
     // Public routes that don't require authentication
     const publicRoutes = [
+      '/',
       '/auth/login',
       '/auth/register',
       '/auth/reset-password'
@@ -27,8 +28,8 @@ export default withAuth(
       return NextResponse.next()
     }
 
-    // If user is authenticated and tries to access auth pages, redirect to dashboard
-    if (token && isPublicRoute) {
+    // If user is authenticated and tries to access auth pages (except root), redirect to dashboard
+    if (token && isPublicRoute && path !== '/') {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
     

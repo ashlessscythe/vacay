@@ -11,26 +11,31 @@ import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
 interface MainNavProps {
   onRefresh?: () => Promise<void>
   userRole?: "ADMIN" | "MANAGER" | "USER"
+  isTeamViewHidden?: boolean
 }
 
-export function MainNav({ onRefresh, userRole }: MainNavProps) {
+export function MainNav({ onRefresh, userRole, isTeamViewHidden }: MainNavProps) {
   const items = [
     {
       title: "Overview",
       href: "/dashboard",
     },
-    {
-      title: "Team Calendar",
-      href: "/dashboard/team",
-    },
-    {
-      title: "Requests",
-      href: "/dashboard/requests",
-    },
+    ...(!isTeamViewHidden || userRole === "ADMIN" || userRole === "MANAGER" ? [
+      {
+        title: "Team Calendar",
+        href: "/dashboard/team",
+      }
+    ] : []),
     ...(userRole === "ADMIN" ? [
       {
         title: "Admin",
         href: "/dashboard/admin",
+      }
+    ] : []),
+    ...(userRole === "MANAGER" || userRole === "ADMIN" ? [
+      {
+        title: "Approvals",
+        href: "/dashboard/approvals",
       }
     ] : [])
   ]

@@ -80,7 +80,7 @@ export default function DashboardPage() {
   }, [fetchDashboardData])
 
   // Calculate pending requests
-  const pendingRequests = leaves.filter(leave => leave.status === 1).length
+  const pendingRequests = leaves.length !== 0 ? leaves.filter(leave => leave.status === 1).length : 0
 
   // Get recent leave requests
   const recentLeaves = leaves.slice(0, 5)

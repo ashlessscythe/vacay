@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/auth.config"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
 ) {
+  const id = req.url.split('/').pop()
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
@@ -26,7 +26,7 @@ export async function POST(
     }
 
     const { approved, comment } = await req.json()
-    const leaveId = parseInt(params.id)
+    const leaveId = parseInt(id!)
 
     const leave = await prisma.leaves.findUnique({
       where: { id: leaveId },

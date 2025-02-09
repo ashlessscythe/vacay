@@ -37,16 +37,15 @@ export function LoginForm() {
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl,
         rememberMe: values.rememberMe,
       })
 
-      if (!result?.error) {
-        router.push(callbackUrl)
-        router.refresh()
-      } else if (result.error === "PENDING_ACTIVATION") {
+      // This will only run if redirect: false
+      if (result?.error === "PENDING_ACTIVATION") {
         router.push("/auth/pending")
-      } else {
+      } else if (result?.error) {
         form.setError("root", { 
           message: "Invalid email or password" 
         })

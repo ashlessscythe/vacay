@@ -207,6 +207,14 @@ async function main() {
     if (defaultUser) {
       console.log('Default admin user exists:', defaultUser.email)
     }
+    defaultUser = await createDefaultAliceUser(company, departments[0])
+    if (defaultUser) {
+      console.log('Default manager user exists:', defaultUser.email)
+    }
+    defaultUser = await createDefaultJoeUser(company, departments[0])
+    if (defaultUser) {
+      console.log('Default normal user exists:', defaultUser.email)
+    }
   }
 
   // Create additional users
@@ -436,6 +444,80 @@ async function updateUserAllowanceAdjustments(filePath) {
   }
 }
 
+async function createDefaultAliceUser(company, department) {
+  // Try to find existing alice user
+  const existingAlice = await prisma.users.findFirst({
+    where: { email: 'alice@local.eml' }
+  })
+
+  if (existingAlice) {
+    return existingAlice
+  }
+
+  // Create bob if doesn't exist
+  console.log('Creating default normal user alice@local.eml')
+  const defaultUser = await prisma.users.create({
+    data: {
+      email: 'alice@local.eml',
+      password: hashifyPassword('managerpass'),
+      name: 'Alice',
+      lastname: 'Local',
+      activated: true,
+      admin: false,
+      manager: true,
+      auto_approve: false,
+      start_date: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
+      companies: {
+        connect: { id: company.id }
+      },
+      departments: {
+        connect: { id: department.id }
+      }
+    }
+  })
+
+  return defaultUser
+}
+
+async function createDefaultJoeUser(company, department) {
+  // Try to find existing joe user
+  const existingJoe = await prisma.users.findFirst({
+    where: { email: 'joe@local.eml' }
+  })
+
+  if (existingJoe) {
+    return existingJoe
+  }
+
+  // Create bob if doesn't exist
+  console.log('Creating default normal user joe@local.eml')
+  const defaultUser = await prisma.users.create({
+    data: {
+      email: 'joe@local.eml',
+      password: hashifyPassword('userpass'),
+      name: 'Joe',
+      lastname: 'Local',
+      activated: true,
+      admin: false,
+      manager: false,
+      auto_approve: false,
+      start_date: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
+      companies: {
+        connect: { id: company.id }
+      },
+      departments: {
+        connect: { id: department.id }
+      }
+    }
+  })
+
+  return defaultUser
+}
+
 async function createDefaultBobUser(company, department) {
   // Try to find existing bob user
   const existingBob = await prisma.users.findFirst({
@@ -540,6 +622,29 @@ async function createDepartments(company, count) {
   return departments
 }
 
+async function createRandomAllowanceAdjustments(users) {
+  // Select 25% of users randomly
+  const selectedUsers = faker.helpers.arrayElements(users, Math.ceil(users.length * 0.25))
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear - 1, currentYear, currentYear + 1]
+
+  for (const user of selectedUsers) {
+    for (const year of years) {
+      await prisma.user_allowance_adjustment.create({
+        data: {
+          user_id: user.id,
+          year: year,
+          adjustment: faker.number.float({ min: -5, max: 5, precision: 0.5 }),
+          personal_adjustment: faker.number.float({ min: -2, max: 2, precision: 0.5 }),
+          carried_over_allowance: faker.number.int({ min: 0, max: 5 }),
+          created_at: new Date()
+        }
+      })
+    }
+    console.log(`Created allowance adjustments for user ${user.id}`)
+  }
+}
+
 async function createUsers(company, departments, count) {
   const users = []
 
@@ -573,6 +678,9 @@ async function createUsers(company, departments, count) {
     console.log(`e: ${user.email} p: ${password}`)
     users.push(user)
   }
+
+  // Create random allowance adjustments for 25% of users
+  await createRandomAllowanceAdjustments(users)
 
   return users
 }

@@ -52,6 +52,7 @@
 
 - [ ] Team Management
   - [x] Create team view
+  - [x] Add role-based access control for team view
   - [ ] Add department filtering
   - [ ] Implement manager approvals
   - [ ] Add team member management
@@ -74,6 +75,7 @@
 - [x] Move bank holiday manager to admin section
 - [x] Add admin navigation links
 - [ ] Company Settings
+  - [x] Add team view visibility toggle
   - [ ] Create company profile management
   - [ ] Add department configuration
   - [ ] Implement leave type customization
