@@ -31,6 +31,7 @@
 - JWT strategy with credentials provider
 - Protected dashboard routes with middleware
 - Session data includes user role
+- Fixed approvals page access to use database boolean fields (manager/admin)
 - Auth configuration moved to separate config file for better organization
 - Added Suspense boundary for login form to handle client-side hooks
 - Fixed build issues with Next.js 15 route handlers
@@ -54,6 +55,8 @@
 - API endpoints for leave types and requests
 - Secure user validation and authorization
 - Leave history with filtering and sorting
+- Department-based access control for approvals
+- Added support for department supervisors in approval workflow
 
 - [ ] Calendar Integration
   - [x] Build calendar component

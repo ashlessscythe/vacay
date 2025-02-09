@@ -35,7 +35,8 @@ export function LeaveApproval({ leaveId, open, onOpenChange, onSuccess }: LeaveA
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update leave request")
+        const error = await response.text()
+        throw new Error(error || "Failed to update leave request")
       }
 
       onOpenChange(false)

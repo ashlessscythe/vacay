@@ -15,17 +15,36 @@ export default async function ApprovalsPage() {
       email: session.user.email,
       activated: true
     },
+    include: {
+      department_supervisors: true
+    }
   })
 
-  if (!user?.manager) {
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  if (!user.manager && !user.admin && user.department_supervisors.length === 0) {
     redirect("/dashboard")
   }
 
+  // Get departments user can approve for
+  const supervisedDepartmentIds = user.department_supervisors.map(ds => ds.department_id)
+  const approverDepartmentIds = user.admin 
+    ? undefined // Admin can see all departments
+    : user.manager 
+      ? [user.department_id] // Manager sees own department
+      : supervisedDepartmentIds // Supervisor sees supervised departments
+
+  // Default to empty array if query fails
   const leaves = await prisma.leaves.findMany({
     where: {
       status: 1, // Pending
       users_leaves_user_idTousers: {
-        company_id: user.company_id
+        company_id: user.company_id,
+        ...(approverDepartmentIds && {
+          department_id: { in: approverDepartmentIds }
+        })
       }
     },
     include: {

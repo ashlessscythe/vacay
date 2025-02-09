@@ -1,13 +1,23 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/auth.config"
 import { prisma } from "@/lib/prisma"
 
-export async function POST(
-  req: Request,
-) {
-  const id = req.url.split('/').pop()
-  try {
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
+   try {
+    const fullPath = req.nextUrl.pathname.split('/');
+    const id = fullPath[fullPath.length - 2] // get id
+    console.log(`id: ${id}`)
+
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json({ error: "Invalid leave ID" }, { status: 400 })
+    }
+
+    const leaveId = id;
+    const { approved, comment } = await req.json();
+
     const session = await getServerSession(authOptions)
     if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 })
@@ -19,24 +29,43 @@ export async function POST(
 
     const user = await prisma.users.findFirst({
       where: { email: session.user.email },
+      include: {
+        department_supervisors: true,
+      },
     })
 
-    if (!user?.manager) {
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 })
+    }
+
+    if (!user.manager && !user.admin && user.department_supervisors.length === 0) {
       return new NextResponse("Forbidden", { status: 403 })
     }
 
-    const { approved, comment } = await req.json()
-    const leaveId = parseInt(id!)
-
     const leave = await prisma.leaves.findUnique({
-      where: { id: leaveId },
+      where: { id: Number.parseInt(leaveId) },
       include: {
         leave_types: true,
+        users_leaves_user_idTousers: {
+          select: {
+            department_id: true,
+          },
+        },
       },
     })
 
     if (!leave) {
       return new NextResponse("Leave not found", { status: 404 })
+    }
+
+    // Check if user has permission to approve this leave request
+    const canApprove =
+      user.admin || // Admin can approve all
+      (user.manager && user.department_id === leave.users_leaves_user_idTousers.department_id) || // Manager can approve own department
+      user.department_supervisors.some((ds) => ds.department_id === leave.users_leaves_user_idTousers.department_id) // Supervisor can approve supervised departments
+
+    if (!canApprove) {
+      return new NextResponse("Cannot approve leave requests from other departments", { status: 403 })
     }
 
     // Check if leave type has auto_approve enabled
@@ -46,7 +75,7 @@ export async function POST(
 
     // Update leave status
     const updatedLeave = await prisma.leaves.update({
-      where: { id: leaveId },
+      where: { id: Number.parseInt(leaveId) },
       data: {
         status: approved ? 2 : 3, // 2 = Approved, 3 = Rejected
         approver_id: user.id,
@@ -61,3 +90,4 @@ export async function POST(
     return new NextResponse("Internal Server Error", { status: 500 })
   }
 }
+
