@@ -22,6 +22,8 @@ interface Leave {
   status: number
   date_start: string
   date_end: string
+  day_part_start: number
+  day_part_end: number
   employee_comment: string | null
   leave_types: {
     name: string
