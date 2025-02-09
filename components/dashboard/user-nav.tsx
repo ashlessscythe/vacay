@@ -47,6 +47,11 @@ export function UserNav() {
           <DropdownMenuItem>
             Settings
           </DropdownMenuItem>
+          {session?.user?.role === "ADMIN" && (
+            <DropdownMenuItem asChild>
+              <a href="/dashboard/admin">Admin Dashboard</a>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem 

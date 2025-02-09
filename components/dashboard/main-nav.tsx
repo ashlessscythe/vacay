@@ -8,31 +8,33 @@ import { appConfig } from "@/lib/config"
 import { Button } from "@/components/ui/button"
 import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
 
-const items = [
-  {
-    title: "Overview",
-    href: "/dashboard",
-  },
-  {
-    title: "Calendar",
-    href: "/dashboard/calendar",
-  },
-  {
-    title: "Team",
-    href: "/dashboard/team",
-  },
-  {
-    title: "Requests",
-    href: "/dashboard/requests",
-  },
-]
-
 interface MainNavProps {
   onRefresh?: () => Promise<void>
-  userRole?: string
+  userRole?: "ADMIN" | "MANAGER" | "USER"
 }
 
 export function MainNav({ onRefresh, userRole }: MainNavProps) {
+  const items = [
+    {
+      title: "Overview",
+      href: "/dashboard",
+    },
+    {
+      title: "Team Calendar",
+      href: "/dashboard/team",
+    },
+    {
+      title: "Requests",
+      href: "/dashboard/requests",
+    },
+    ...(userRole === "ADMIN" ? [
+      {
+        title: "Admin",
+        href: "/dashboard/admin",
+      }
+    ] : [])
+  ]
+
   const pathname = usePathname()
   const [showLeaveRequest, setShowLeaveRequest] = useState(false)
 
@@ -55,19 +57,6 @@ export function MainNav({ onRefresh, userRole }: MainNavProps) {
           {item.title}
         </Link>
       ))}
-      {userRole === "ADMIN" && (
-        <Link
-          href="/dashboard/admin"
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
-            pathname === "/dashboard/admin"
-              ? "text-primary"
-              : "text-muted-foreground"
-          )}
-        >
-          Admin
-        </Link>
-      )}
       <Button
         onClick={() => setShowLeaveRequest(true)}
         className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"

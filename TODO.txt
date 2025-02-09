@@ -45,12 +45,13 @@
 
 - [ ] Calendar Integration
   - [x] Build calendar component
-  - [ ] Show team absences
+  - [x] Show team absences
+  - [x] Fix calendar date alignment issue
   - [ ] Add bank holiday integration
   - [ ] Implement date range selection
 
 - [ ] Team Management
-  - [ ] Create team view
+  - [x] Create team view
   - [ ] Add department filtering
   - [ ] Implement manager approvals
   - [ ] Add team member management
@@ -123,9 +124,9 @@
   - [ ] Create contributing guide
 
 ## Current Focus
-1. Build calendar component
-2. Implement date range selection
-3. Add team management features
+1. Add department filtering to team view
+2. Implement manager approvals
+3. Add team member management
 
 ## Notes
 - Using shadcn UI with New York style
