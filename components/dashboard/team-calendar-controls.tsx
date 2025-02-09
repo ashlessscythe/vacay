@@ -19,19 +19,43 @@ import {
 
 export type ViewMode = "3day" | "week" | "month"
 
+interface Department {
+  id: number
+  name: string
+}
+
 interface TeamCalendarControlsProps {
   currentDate: Date
   viewMode: ViewMode
+  selectedDepartment?: number
   onDateChange: (date: Date) => void
   onViewModeChange: (mode: ViewMode) => void
+  onDepartmentChange: (departmentId: number | undefined) => void
 }
 
 export function TeamCalendarControls({
   currentDate,
   viewMode,
+  selectedDepartment,
   onDateChange,
   onViewModeChange,
+  onDepartmentChange,
 }: TeamCalendarControlsProps) {
+  const [departments, setDepartments] = React.useState<Department[]>([])
+
+  React.useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch("/api/team/departments")
+        if (!response.ok) throw new Error("Failed to fetch departments")
+        const data = await response.json()
+        setDepartments(data)
+      } catch (error) {
+        console.error("Error fetching departments:", error)
+      }
+    }
+    fetchDepartments()
+  }, [])
   const months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(currentDate.getFullYear(), i, 1)
     return {
@@ -142,6 +166,26 @@ export function TeamCalendarControls({
         </Select>
       </div>
 
+      <div className="flex items-center space-x-2">
+        <Select
+          value={selectedDepartment?.toString() || "all"}
+          onValueChange={(value) => 
+            onDepartmentChange(value !== "all" ? parseInt(value) : undefined)
+          }
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All Departments" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept.id} value={dept.id.toString()}>
+                {dept.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   )
 }

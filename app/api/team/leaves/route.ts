@@ -14,9 +14,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
+    const departmentId = searchParams.get("departmentId")
 
     if (!startDate || !endDate) {
       return new NextResponse("Missing date range", { status: 400 })
+    }
+
+    // Validate departmentId if provided
+    if (departmentId && isNaN(parseInt(departmentId))) {
+      return new NextResponse("Invalid department ID", { status: 400 })
     }
 
     // Validate date format
@@ -72,10 +78,10 @@ export async function GET(request: Request) {
         activated: true,
         end_date: null,
         // Show all users if admin/manager, otherwise only show users from same/supervised departments
-        ...(!(currentUser.admin || currentUser.manager) && {
-          department_id: {
-            in: departmentIds
-          }
+        ...((!(currentUser.admin || currentUser.manager) || departmentId) && {
+          department_id: departmentId 
+            ? parseInt(departmentId)
+            : { in: departmentIds }
         })
       },
       select: {

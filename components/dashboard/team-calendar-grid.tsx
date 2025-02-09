@@ -161,6 +161,7 @@ CellPopover.displayName = 'CellPopover';
 export function TeamCalendarGrid() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
   const [viewMode, setViewMode] = useState<ViewMode>("week")
+  const [selectedDepartment, setSelectedDepartment] = useState<number>()
   const [monthData, setMonthData] = useState<TeamMemberLeave[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [isManager, setIsManager] = useState<boolean>(false)
@@ -230,7 +231,7 @@ export function TeamCalendarGrid() {
     }
 
     return { className: "bg-green-100 dark:bg-green-900/30" }
-  }, [])
+  }, [selectedDepartment])
 
   // Get unique leave types for legend
   const leaveTypes = useMemo(() => {
@@ -247,7 +248,8 @@ export function TeamCalendarGrid() {
 
   // Cache key for month data
   const monthCacheKey = useMemo(() => 
-    format(monthStart, "yyyy-MM"), [monthStart]
+    `${format(monthStart, "yyyy-MM")}-${selectedDepartment || "all"}`, 
+    [monthStart, selectedDepartment]
   )
 
   // Fetch month data
@@ -266,7 +268,9 @@ export function TeamCalendarGrid() {
       }
 
       const response = await fetch(
-        `/api/team/leaves?startDate=${startDateStr}&endDate=${endDateStr}`,
+        `/api/team/leaves?startDate=${startDateStr}&endDate=${endDateStr}${
+          selectedDepartment ? `&departmentId=${selectedDepartment}` : ''
+        }`,
         { cache: 'no-store' }
       )
       
@@ -298,8 +302,14 @@ export function TeamCalendarGrid() {
       <TeamCalendarControls
         currentDate={currentDate}
         viewMode={viewMode}
+        selectedDepartment={selectedDepartment}
         onDateChange={setCurrentDate}
         onViewModeChange={setViewMode}
+        onDepartmentChange={(departmentId) => {
+          setSelectedDepartment(departmentId)
+          // Clear cache when department changes
+          sessionStorage.removeItem(monthCacheKey)
+        }}
       />
       <div className="rounded-lg border p-2 sm:p-4">
         <div className="overflow-x-auto">

@@ -68,7 +68,7 @@
 - [ ] Team Management
   - [x] Create team view
   - [x] Add role-based access control for team view
-  - [ ] Add department filtering
+  - [x] Add department filtering
   - [ ] Implement manager approvals
   - [ ] Add team member management
 
