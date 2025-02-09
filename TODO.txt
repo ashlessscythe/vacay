@@ -74,7 +74,7 @@
   - [x] Add department filtering
   - [x] Implement manager approvals
   - [x] Verify team view permission filtering
-  - [ ] Add team member management
+  - [x] Add team member management
 
 ## Phase 4: Dashboard Features
 - [x] Create dashboard layout
