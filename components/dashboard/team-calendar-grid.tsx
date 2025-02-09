@@ -6,6 +6,8 @@ import { addDays, format, startOfWeek, startOfMonth, endOfMonth, subDays } from 
 import { cn } from "@/lib/utils"
 import { ViewMode, TeamCalendarControls } from "./team-calendar-controls"
 import { TeamCalendarLegend } from "./team-calendar-legend"
+import { LeaveApproval } from "./leave-approval"
+import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
@@ -41,12 +43,15 @@ interface DayLeave {
 interface CellPopoverProps {
   dayLeave: DayLeave;
   member: TeamMemberLeave;
+  onRefresh: () => Promise<void>;
+  isManager: boolean;
 }
 
-const CellPopover = React.memo(({ dayLeave, member }: CellPopoverProps): React.ReactElement => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>(null);
+const CellPopover = React.memo(({ dayLeave, member, onRefresh, isManager }: CellPopoverProps): React.ReactElement => {
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [showApproval, setShowApproval] = useState<boolean>(false)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout>(null)
 
   const handleMouseEnter = useCallback(() => {
     timeoutRef.current = setTimeout(() => {
@@ -117,9 +122,32 @@ const CellPopover = React.memo(({ dayLeave, member }: CellPopoverProps): React.R
               </div>
             )}
             {dayLeave.originalLeave && (
-              <div className="text-xs text-muted-foreground mt-2">
-                {format(new Date(dayLeave.originalLeave.dateStart), "MMM d")} - {format(new Date(dayLeave.originalLeave.dateEnd), "MMM d, yyyy")}
-              </div>
+              <>
+                <div className="text-xs text-muted-foreground mt-2">
+                  {format(new Date(dayLeave.originalLeave.dateStart), "MMM d")} - {format(new Date(dayLeave.originalLeave.dateEnd), "MMM d, yyyy")}
+                </div>
+                {isManager && dayLeave.status === "pending" && (
+                  <div className="mt-4">
+                    <Button
+                      size="sm"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                        setShowApproval(true)
+                      }}
+                    >
+                      Review Request
+                    </Button>
+                  </div>
+                )}
+                {showApproval && (
+                  <LeaveApproval
+                    leaveId={dayLeave.originalLeave.id}
+                    open={showApproval}
+                    onOpenChange={setShowApproval}
+                    onSuccess={onRefresh}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
@@ -135,6 +163,21 @@ export function TeamCalendarGrid() {
   const [viewMode, setViewMode] = useState<ViewMode>("week")
   const [monthData, setMonthData] = useState<TeamMemberLeave[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [isManager, setIsManager] = useState<boolean>(false)
+
+  // Check if user is a manager once on mount
+  useEffect(() => {
+    const checkManager = async () => {
+      try {
+        const response = await fetch("/api/user")
+        const data = await response.json()
+        setIsManager(data.manager || false)
+      } catch (error) {
+        console.error("Error checking manager status:", error)
+      }
+    }
+    checkManager()
+  }, [])
 
   // Get full month range
   const { monthStart, monthEnd, allDates } = useMemo(() => {
@@ -324,7 +367,12 @@ export function TeamCalendarGrid() {
                         style={getCellStyle(dayLeave).style}
                       >
                         {dayLeave.status !== "none" && (
-                          <CellPopover dayLeave={dayLeave} member={member} />
+                          <CellPopover 
+                            dayLeave={dayLeave} 
+                            member={member} 
+                            onRefresh={fetchMonthData}
+                            isManager={isManager}
+                          />
                         )}
                       </td>
                     )

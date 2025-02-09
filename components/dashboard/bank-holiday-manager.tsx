@@ -3,17 +3,15 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface BankHoliday {
-  id: number;
-  name: string;
-  date: string;
-}
+import { BankHoliday, CreateBankHolidayInput } from "@/types/bank-holiday";
 
 export default function BankHolidayManager() {
   const [holidays, setHolidays] = useState<BankHoliday[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newHoliday, setNewHoliday] = useState({ name: "", date: "" });
+  const [newHoliday, setNewHoliday] = useState<CreateBankHolidayInput>({ 
+    name: "", 
+    date: "" 
+  });
 
   const fetchHolidays = async () => {
     const response = await fetch('/api/holidays');
@@ -65,12 +63,14 @@ export default function BankHolidayManager() {
                   value={newHoliday.name}
                   onChange={(e) => setNewHoliday({ ...newHoliday, name: e.target.value })}
                   className="border p-2 mr-2"
+                  required
                 />
                 <input
                   type="date"
                   value={newHoliday.date}
                   onChange={(e) => setNewHoliday({ ...newHoliday, date: e.target.value })}
                   className="border p-2 mr-2"
+                  required
                 />
                 <Button onClick={addHoliday}>Add Holiday</Button>
               </div>

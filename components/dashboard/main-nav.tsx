@@ -40,9 +40,9 @@ export function MainNav({ onRefresh, userRole }: MainNavProps) {
 
   return (
     <nav className="flex items-center space-x-6 lg:space-x-8">
-      <span className="text-sm font-medium text-muted-foreground">
+      <Link href="/" className="text-sm font-medium text-muted-foreground">
         {appConfig.name}
-      </span>
+      </Link>
       {items.map((item) => (
         <Link
           key={item.href}

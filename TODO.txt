@@ -31,7 +31,7 @@
 - [x] Leave Request System
   - [x] Create leave request form
   - [x] Implement leave balance calculation
-  - [ ] Add leave request approval workflow
+  - [x] Add leave request approval workflow
   - [x] Create leave history view
 
 ### Leave Request System Notes
@@ -47,7 +47,7 @@
   - [x] Build calendar component
   - [x] Show team absences
   - [x] Fix calendar date alignment issue
-  - [ ] Add bank holiday integration
+  - [x] Add bank holiday integration
   - [ ] Implement date range selection
 
 - [ ] Team Management
