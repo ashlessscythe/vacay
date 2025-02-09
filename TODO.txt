@@ -150,6 +150,13 @@
 2. Implement manager approvals
 3. Add team member management
 
+## Recent Updates
+- Centralized types into lib/types directory
+  - Created user.ts for user-related types
+  - Created leave.ts for leave-related types (Leave, LeaveType, form props, etc.)
+  - Improved type safety across components
+  - Standardized interfaces across the application
+
 ## Notes
 - Using shadcn UI with New York style
 - Implemented gradient animations for modern feel

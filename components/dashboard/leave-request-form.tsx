@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { format, isWithinInterval, parseISO, isBefore } from "date-fns"
+import { format, isWithinInterval, parseISO } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -29,51 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-
-// Validation schema
-const leaveRequestSchema = z.object({
-  leaveTypeId: z.string().min(1, "Leave type is required"),
-  dateStart: z.string().min(1, "Start date is required"),
-  dateEnd: z.string().min(1, "End date is required"),
-  dayPartStart: z.string().min(1, "Start day part is required"),
-  dayPartEnd: z.string().min(1, "End day part is required"),
-  employeeComment: z.string().optional(),
-}).refine((data) => {
-  const start = parseISO(data.dateStart);
-  const end = parseISO(data.dateEnd);
-  return !isBefore(end, start);
-}, {
-  message: "End date cannot be before start date",
-  path: ["dateEnd"],
-});
-
-type LeaveRequestValues = z.infer<typeof leaveRequestSchema>
-
-interface Leave {
-  id: number
-  status: number
-  date_start: string
-  date_end: string
-  employee_comment: string | null
-  leave_types: {
-    name: string
-    color: string
-  }
-}
-
-interface LeaveType {
-  id: number
-  name: string
-  color: string
-  use_allowance: boolean
-  use_personal: boolean
-}
-
-interface LeaveRequestFormProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess?: () => Promise<void>
-}
+import { Leave, LeaveType, LeaveRequestFormProps, leaveRequestSchema, LeaveRequestValues } from "@/lib/types/leave"
 
 export function LeaveRequestForm({ open, onOpenChange, onSuccess }: LeaveRequestFormProps) {
   const [isLoading, setIsLoading] = useState(false)
