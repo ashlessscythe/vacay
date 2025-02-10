@@ -101,7 +101,8 @@
   - [x] Add team view visibility toggle
   - [x] Create company profile management
   - [x] Optimize desktop layout for company settings
-  - [ ] Add department configuration
+  - [x] Add department configuration
+  - [x] Add department-specific settings
   - [ ] Implement leave type customization
   - [ ] Add work schedule management
 
