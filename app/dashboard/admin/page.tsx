@@ -24,8 +24,36 @@ export default async function AdminPage() {
 
   const company = await prisma.companies.findUnique({
     where: { id: user.company_id },
-    select: { is_team_view_hidden: true }
+    select: {
+      name: true,
+      country: true,
+      timezone: true,
+      date_format: true,
+      last_name_first: true,
+      start_of_new_year: true,
+      carry_over: true,
+      payroll_close_time: true,
+      share_all_absences: true,
+      is_team_view_hidden: true,
+      company_wide_message: true,
+      company_wide_message_text_color: true,
+      company_wide_message_bg_color: true,
+    }
   })
+
+  if (!company) {
+    throw new Error("Company not found")
+  }
+
+  // Prepare settings with default values for nullable fields
+  const settings = {
+    ...company,
+    timezone: company.timezone ?? "America/Denver",
+    company_wide_message: company.company_wide_message ?? "",
+    company_wide_message_text_color: company.company_wide_message_text_color ?? "#000000",
+    company_wide_message_bg_color: company.company_wide_message_bg_color ?? "#ffffff",
+    carry_over: company.carry_over ?? 0,
+  }
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -33,11 +61,7 @@ export default async function AdminPage() {
         <h2 className="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
       </div>
       <div className="grid gap-4">
-        <CompanySettings 
-          initialSettings={{
-            is_team_view_hidden: company?.is_team_view_hidden ?? false
-          }}
-        />
+        <CompanySettings initialSettings={settings} />
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
