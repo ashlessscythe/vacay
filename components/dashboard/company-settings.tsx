@@ -95,8 +95,9 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Card>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="h-full">
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
             <CardDescription>
@@ -195,9 +196,9 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Leave Management</CardTitle>
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Leave Management</CardTitle>
             <CardDescription>
               Configure how leave years and balances are managed.
             </CardDescription>
@@ -259,7 +260,8 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        </div>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Display Settings</CardTitle>
             <CardDescription>
@@ -347,9 +349,11 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
           </CardContent>
         </Card>
 
-        <Button type="submit" disabled={isLoading}>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isLoading}>
           {isLoading ? "Saving..." : "Save Changes"}
-        </Button>
+          </Button>
+        </div>
       </form>
     </Form>
   )

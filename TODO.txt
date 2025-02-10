@@ -97,9 +97,10 @@
 - [x] Create admin dashboard page
 - [x] Move bank holiday manager to admin section
 - [x] Add admin navigation links
-  - [ ] Company Settings
+  - [x] Company Settings
   - [x] Add team view visibility toggle
   - [x] Create company profile management
+  - [x] Optimize desktop layout for company settings
   - [ ] Add department configuration
   - [ ] Implement leave type customization
   - [ ] Add work schedule management
