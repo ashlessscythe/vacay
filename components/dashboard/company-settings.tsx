@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -27,6 +26,8 @@ import {
 } from "@/components/ui/select"
 
 import { toast } from "@/hooks/use-toast"
+import { departmentSettings } from "@/lib/types/department"
+
 
 const companySettingsSchema = z.object({
   // Basic Info
@@ -49,13 +50,13 @@ const companySettingsSchema = z.object({
   company_wide_message_bg_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format"),
 })
 
-const departmentSettingsSchema = z.object({
-  departmentId: z.number(),
-  allowance: z.number().min(0),
-  personal: z.number().min(0),
-  include_public_holidays: z.boolean(),
-  is_accrued_allowance: z.boolean(),
-})
+// const departmentSettingsSchema = z.object({
+//   departmentId: z.number(),
+//   allowance: z.number().min(0),
+//   personal: z.number().min(0),
+//   include_public_holidays: z.boolean(),
+//   is_accrued_allowance: z.boolean(),
+// })
 
 type CompanySettingsValues = z.infer<typeof companySettingsSchema>
 
@@ -97,7 +98,7 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
     fetchDepartments()
   }, [])
 
-  const handleDepartmentSettingsSubmit = async (departmentId: number, settings: any) => {
+  const handleDepartmentSettingsSubmit = async (departmentId: number, settings: departmentSettings) => {
     try {
       const response = await fetch("/api/departments/settings", {
         method: "PATCH",
@@ -176,7 +177,7 @@ export function CompanySettings({ initialSettings }: CompanySettingsProps) {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
               <CardDescription>
-                Manage your company's basic information and preferences.
+                Manage your company&apos;s basic information and preferences.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

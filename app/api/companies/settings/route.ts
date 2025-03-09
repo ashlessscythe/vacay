@@ -25,7 +25,7 @@ const companySettingsSchema = z.object({
   company_wide_message_bg_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format"),
 })
 
-type CompanySettingsValues = z.infer<typeof companySettingsSchema>
+// type CompanySettingsValues = z.infer<typeof companySettingsSchema>
 
 export async function PATCH(req: Request) {
   try {
