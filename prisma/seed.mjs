@@ -600,7 +600,7 @@ async function createDepartments(company, count) {
       const department = await prisma.departments.create({
         data: {
           name: departmentName,
-          allowance: faker.number.float({ min: 20, max: 30, multipleOf: 0.5 }),
+          allowance: faker.number.float({ min: 5, max: 30, multipleOf: 0.5 }),
           include_public_holidays: faker.datatype.boolean(),
           is_accrued_allowance: faker.datatype.boolean(),
           created_at: faker.date.past(),
