@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LeaveRequestForm } from "@/components/dashboard/leave-request-form";
 import { TeamCalendarGrid } from "@/components/dashboard/team-calendar-grid";
+import { UserCalendarGrid } from "@/components/dashboard/user-calendar-grid";
 import { StatsOverview } from "@/components/dashboard/stats-overview";
 import { LeaveBalanceSection } from "@/components/dashboard/leave-balance-section";
 import { RecentLeaves } from "@/components/dashboard/recent-leaves";
@@ -120,8 +121,17 @@ export default function DashboardPage() {
         onSuccess={fetchDashboardData}
       />
 
+      <Card className="backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle>Your Leave Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <UserCalendarGrid />
+        </CardContent>
+      </Card>
+
       {isManagerOrAdmin && (
-        <Card className="backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg">
+        <Card className="backdrop-blur-sm bg-white/50 dark:bg-gray-950/50 border-0 shadow-lg mt-6">
           <CardHeader>
             <CardTitle>Team Calendar</CardTitle>
           </CardHeader>
