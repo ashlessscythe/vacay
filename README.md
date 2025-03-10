@@ -1,5 +1,21 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Setup
+
+This project uses environment variables for configuration. Follow these steps to set up your environment:
+
+1. Copy the example environment file to create your own:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the `.env` file with your specific configuration values:
+   - `DATABASE_URL`: Your PostgreSQL connection string
+   - `NEXTAUTH_SECRET`: A secret key for NextAuth authentication
+   - `NEXTAUTH_URL`: The URL where your application is hosted (use http://localhost:3000 for local development)
+   - `NEXT_PUBLIC_APP_NAME`: The name of your application
+
 ## Getting Started
 
 First, run the development server:

@@ -1,3 +1,5 @@
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Bruh-Time";
+
 export const appConfig = {
-  name: process.env.NEXT_APP_NAME || 'Bruh-Time'
-}
+  name: APP_NAME,
+};

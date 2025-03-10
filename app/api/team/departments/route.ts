@@ -1,31 +1,36 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { prisma } from "@/lib/prisma"
-import { authOptions } from "../../auth/auth.config"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { prisma } from "@/lib/prisma";
+import { authOptions } from "../../auth/auth.config";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 })
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     // Get current user with their roles
     const currentUser = await prisma.users.findFirst({
-      where: { 
+      where: {
         email: session.user.email as string,
-        activated: true
+        activated: true,
       },
-      select: { 
+      select: {
         id: true,
         company_id: true,
         admin: true,
-        manager: true
-      }
-    })
+        manager: true,
+      },
+    });
 
     if (!currentUser) {
-      return new NextResponse("User not found", { status: 404 })
+      return new NextResponse("User not found", { status: 404 });
+    }
+
+    // Restrict access to only admins and managers
+    if (!currentUser.admin && !currentUser.manager) {
+      return new NextResponse("Forbidden", { status: 403 });
     }
 
     // Get departments based on user role
@@ -37,23 +42,23 @@ export async function GET() {
         ...(!(currentUser.admin || currentUser.manager) && {
           department_supervisors: {
             some: {
-              user_id: currentUser.id
-            }
-          }
-        })
+              user_id: currentUser.id,
+            },
+          },
+        }),
       },
       select: {
         id: true,
-        name: true
+        name: true,
       },
       orderBy: {
-        name: 'asc'
-      }
-    })
+        name: "asc",
+      },
+    });
 
-    return NextResponse.json(departments)
+    return NextResponse.json(departments);
   } catch (error) {
-    console.error("[TEAM_DEPARTMENTS]", error)
-    return new NextResponse("Internal error", { status: 500 })
+    console.error("[TEAM_DEPARTMENTS]", error);
+    return new NextResponse("Internal error", { status: 500 });
   }
 }

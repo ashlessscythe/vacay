@@ -1,26 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { User } from "@/lib/types/user"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { User } from "@/lib/types/user";
 
 interface TeamMemberManagementProps {
-  members: User[]
-  departments: { id: number; name: string }[]
-  onAddMember: (data: { email: string; department_id: number; role: "admin" | "manager" | "employee" }) => Promise<void>
-  onUpdateMember: (userId: number, data: { department_id?: number; role?: "admin" | "manager" | "employee" }) => Promise<void>
-  onRemoveMember: (userId: number) => Promise<void>
+  members: User[];
+  departments: { id: number; name: string }[];
+  onAddMember: (data: {
+    email: string;
+    department_id: number;
+    role: "admin" | "manager" | "employee";
+  }) => Promise<void>;
+  onUpdateMember: (
+    userId: number,
+    data: { department_id?: number; role?: "admin" | "manager" | "employee" }
+  ) => Promise<void>;
+  onRemoveMember: (userId: number) => Promise<void>;
 }
 
 export function TeamMemberManagement({
@@ -30,10 +43,15 @@ export function TeamMemberManagement({
   onUpdateMember,
   onRemoveMember,
 }: TeamMemberManagementProps) {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [newMemberEmail, setNewMemberEmail] = useState("")
-  const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null)
-  const [selectedRole, setSelectedRole] = useState<"admin" | "manager" | "employee">("employee")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState<number | null>(
+    null
+  );
+  const [selectedRole, setSelectedRole] = useState<
+    "admin" | "manager" | "employee"
+  >("employee");
+  // Component uses CSS media queries for responsive design
 
   const handleAddMember = async () => {
     try {
@@ -41,15 +59,15 @@ export function TeamMemberManagement({
         email: newMemberEmail,
         department_id: selectedDepartment!,
         role: selectedRole,
-      })
-      setIsAddDialogOpen(false)
-      setNewMemberEmail("")
-      setSelectedDepartment(null)
-      setSelectedRole("employee")
+      });
+      setIsAddDialogOpen(false);
+      setNewMemberEmail("");
+      setSelectedDepartment(null);
+      setSelectedRole("employee");
     } catch (error) {
-      console.error("Failed to add team member:", error)
+      console.error("Failed to add team member:", error);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -76,9 +94,11 @@ export function TeamMemberManagement({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
-                <Select 
-                  value={selectedDepartment?.toString() || ""} 
-                  onValueChange={(value) => setSelectedDepartment(parseInt(value))}
+                <Select
+                  value={selectedDepartment?.toString() || ""}
+                  onValueChange={(value) =>
+                    setSelectedDepartment(parseInt(value))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
@@ -94,9 +114,9 @@ export function TeamMemberManagement({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select 
-                  value={selectedRole} 
-                  onValueChange={(value: string) => 
+                <Select
+                  value={selectedRole}
+                  onValueChange={(value: string) =>
                     setSelectedRole(value as "admin" | "manager" | "employee")
                   }
                 >
@@ -118,14 +138,17 @@ export function TeamMemberManagement({
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Mobile view (cards) */}
+      <div className="md:hidden grid gap-4">
         {members.map((member) => (
           <Card key={member.id} className="p-4">
             <div className="space-y-2">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground">{member.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {member.email}
+                  </p>
                 </div>
                 <Button
                   variant="destructive"
@@ -138,7 +161,11 @@ export function TeamMemberManagement({
               <div className="space-y-2">
                 <Select
                   value={member.department_id?.toString() || ""}
-                  onValueChange={(value) => onUpdateMember(member.id, { department_id: parseInt(value) })}
+                  onValueChange={(value) =>
+                    onUpdateMember(member.id, {
+                      department_id: parseInt(value),
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select department">
@@ -154,8 +181,14 @@ export function TeamMemberManagement({
                   </SelectContent>
                 </Select>
                 <Select
-                  value={member.admin ? "admin" : member.manager ? "manager" : "employee"}
-                  onValueChange={(value: "admin" | "manager" | "employee") => 
+                  value={
+                    member.admin
+                      ? "admin"
+                      : member.manager
+                      ? "manager"
+                      : "employee"
+                  }
+                  onValueChange={(value: "admin" | "manager" | "employee") =>
                     onUpdateMember(member.id, { role: value })
                   }
                 >
@@ -173,6 +206,84 @@ export function TeamMemberManagement({
           </Card>
         ))}
       </div>
+
+      {/* Desktop view (table) */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-3 px-4">Name</th>
+              <th className="text-left py-3 px-4">Email</th>
+              <th className="text-left py-3 px-4">Department</th>
+              <th className="text-left py-3 px-4">Role</th>
+              <th className="text-right py-3 px-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((member) => (
+              <tr key={member.id} className="border-b hover:bg-muted/50">
+                <td className="py-3 px-4">{member.name}</td>
+                <td className="py-3 px-4">{member.email}</td>
+                <td className="py-3 px-4">
+                  <Select
+                    value={member.department_id?.toString() || ""}
+                    onValueChange={(value) =>
+                      onUpdateMember(member.id, {
+                        department_id: parseInt(value),
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select department">
+                        {member.departments?.name}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id.toString()}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </td>
+                <td className="py-3 px-4">
+                  <Select
+                    value={
+                      member.admin
+                        ? "admin"
+                        : member.manager
+                        ? "manager"
+                        : "employee"
+                    }
+                    onValueChange={(value: "admin" | "manager" | "employee") =>
+                      onUpdateMember(member.id, { role: value })
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="employee">Employee</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
+                <td className="py-3 px-4 text-right">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onRemoveMember(member.id)}
+                  >
+                    Remove
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }

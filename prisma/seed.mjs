@@ -1,30 +1,30 @@
-import { faker } from '@faker-js/faker'
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
-import fs from 'fs'
-import yargs from 'yargs'
-import { hideBin } from 'yargs/helpers'
+import { faker } from "@faker-js/faker";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import fs from "fs";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // Password requirements following NIST guidelines
-const PASSWORD_MIN_LENGTH = 12
-const PASSWORD_MAX_LENGTH = 128
-const SALT_ROUNDS = 12
+const PASSWORD_MIN_LENGTH = 12;
+const PASSWORD_MAX_LENGTH = 128;
+const SALT_ROUNDS = 12;
 
 // Function to generate a secure password that meets requirements
 function generateSecurePassword() {
   const length = faker.number.int({
     min: PASSWORD_MIN_LENGTH,
-    max: PASSWORD_MAX_LENGTH
-  })
+    max: PASSWORD_MAX_LENGTH,
+  });
   const chars =
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
-  let password = ''
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
   for (let i = 0; i < length; i++) {
-    password += faker.helpers.arrayElement(chars.split(''))
+    password += faker.helpers.arrayElement(chars.split(""));
   }
-  return password
+  return password;
 }
 
 // Default configuration
@@ -35,117 +35,117 @@ const DEFAULT_CONFIG = {
   companyId: 1,
   dateRange: {
     from: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000), // 45 days ago
-    to: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000) // 45 days from now
+    to: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
   },
   bankHolidayCount: 8, // Standard number of bank holidays
-  customSchedulePercent: 30 // % of users that get custom schedules
-}
+  customSchedulePercent: 30, // % of users that get custom schedules
+};
 
 // Fun bank holiday names for each month
 const HOLIDAY_NAMES = {
-  1: ["New Year's Day", 'Winter Blues Break'],
-  2: ["Valentine's Break", 'Groundhog Day Off'],
-  3: ['Spring Equinox Holiday', "St. Patrick's Day"],
-  4: ["April Fools' Holiday", 'Spring Break'],
-  5: ['May Day', 'Memorial Day'],
-  6: ['Summer Solstice Break', 'Midsummer Holiday'],
-  7: ['Independence Day', 'Summer Vacation Day'],
-  8: ['Summer Bank Holiday', 'Late Summer Break'],
-  9: ['Labor Day', 'Autumn Equinox Break'],
-  10: ['Halloween Holiday', 'October Fest Break'],
-  11: ['Veterans Day', 'Thanksgiving Break'],
-  12: ['Winter Holiday', "New Year's Eve"]
-}
+  1: ["New Year's Day", "Winter Blues Break"],
+  2: ["Valentine's Break", "Groundhog Day Off"],
+  3: ["Spring Equinox Holiday", "St. Patrick's Day"],
+  4: ["April Fools' Holiday", "Spring Break"],
+  5: ["May Day", "Memorial Day"],
+  6: ["Summer Solstice Break", "Midsummer Holiday"],
+  7: ["Independence Day", "Summer Vacation Day"],
+  8: ["Summer Bank Holiday", "Late Summer Break"],
+  9: ["Labor Day", "Autumn Equinox Break"],
+  10: ["Halloween Holiday", "October Fest Break"],
+  11: ["Veterans Day", "Thanksgiving Break"],
+  12: ["Winter Holiday", "New Year's Eve"],
+};
 
 // Hash password using bcrypt
 function hashifyPassword(password) {
-  return bcrypt.hashSync(password, SALT_ROUNDS)
+  return bcrypt.hashSync(password, SALT_ROUNDS);
 }
 
 const argv = yargs(hideBin(process.argv))
-  .option('clear', {
-    type: 'boolean',
+  .option("clear", {
+    type: "boolean",
     default: false,
-    description: 'Clear all data before seeding'
+    description: "Clear all data before seeding",
   })
-  .option('count', {
-    type: 'number',
-    description: 'Number of associates to create'
+  .option("count", {
+    type: "number",
+    description: "Number of associates to create",
   })
-  .option('user-count', {
-    type: 'number',
-    description: 'Number of associates to create (alias for --count)'
+  .option("user-count", {
+    type: "number",
+    description: "Number of associates to create (alias for --count)",
   })
-  .option('use-faker', {
-    type: 'number',
-    description: 'Number of associates to create (alias for --count)'
+  .option("use-faker", {
+    type: "number",
+    description: "Number of associates to create (alias for --count)",
   })
-  .option('leaves-multiplier', {
-    type: 'number',
-    description: 'Multiplier for the number of leaves per associate'
+  .option("leaves-multiplier", {
+    type: "number",
+    description: "Multiplier for the number of leaves per associate",
   })
-  .option('department-count', {
-    type: 'number',
-    description: 'Count of departments to create by default'
+  .option("department-count", {
+    type: "number",
+    description: "Count of departments to create by default",
   })
-  .option('company-id', {
-    type: 'number',
-    description: 'Company ID to use for seeding data'
+  .option("company-id", {
+    type: "number",
+    description: "Company ID to use for seeding data",
   })
-  .option('no-default-user', {
-    type: 'boolean',
+  .option("no-default-user", {
+    type: "boolean",
     default: false,
-    description: 'Skip creating default admin user if it does not exist'
+    description: "Skip creating default admin user if it does not exist",
   })
-  .option('uaa', {
-    type: 'string',
-    description: 'Path to CSV file containing user allowance adjustments'
+  .option("uaa", {
+    type: "string",
+    description: "Path to CSV file containing user allowance adjustments",
   })
-  .option('date-from', {
-    type: 'string',
-    description: 'Start date for leave records (YYYY-MM-DD)'
+  .option("date-from", {
+    type: "string",
+    description: "Start date for leave records (YYYY-MM-DD)",
   })
-  .option('date-to', {
-    type: 'string',
-    description: 'End date for leave records (YYYY-MM-DD)'
+  .option("date-to", {
+    type: "string",
+    description: "End date for leave records (YYYY-MM-DD)",
   })
-  .option('bank-holiday-count', {
-    type: 'number',
-    description: 'Number of bank holidays to create'
+  .option("bank-holiday-count", {
+    type: "number",
+    description: "Number of bank holidays to create",
   })
-  .option('custom-schedule-percent', {
-    type: 'number',
-    description: 'Percentage of users that get custom schedules (0-100)'
-  }).argv
+  .option("custom-schedule-percent", {
+    type: "number",
+    description: "Percentage of users that get custom schedules (0-100)",
+  }).argv;
 
 async function clearDatabase() {
-  console.log('Clearing database...')
+  console.log("Clearing database...");
 
   // Delete dependent tables first (child tables)
-  await prisma.department_supervisors.deleteMany()
-  await prisma.leaves.deleteMany()
-  await prisma.user_allowance_adjustment.deleteMany()
-  await prisma.user_feeds.deleteMany()
-  await prisma.email_audits.deleteMany()
-  await prisma.comments.deleteMany()
-  await prisma.audit.deleteMany()
-  await prisma.user_messages.deleteMany()
+  await prisma.department_supervisors.deleteMany();
+  await prisma.leaves.deleteMany();
+  await prisma.user_allowance_adjustment.deleteMany();
+  await prisma.user_feeds.deleteMany();
+  await prisma.email_audits.deleteMany();
+  await prisma.comments.deleteMany();
+  await prisma.audit.deleteMany();
+  await prisma.user_messages.deleteMany();
 
   // Delete from middle-level tables
-  await prisma.schedules.deleteMany()
-  await prisma.departments.deleteMany()
-  await prisma.leave_types.deleteMany()
-  await prisma.bank_holidays.deleteMany()
-  await prisma.users.deleteMany()
+  await prisma.schedules.deleteMany();
+  await prisma.departments.deleteMany();
+  await prisma.leave_types.deleteMany();
+  await prisma.bank_holidays.deleteMany();
+  await prisma.users.deleteMany();
 
   // Delete from parent tables
-  await prisma.companies.deleteMany()
+  await prisma.companies.deleteMany();
 
   // Delete unrelated tables last (no FKs)
-  await prisma.sequelizeMeta.deleteMany()
-  await prisma.sessions.deleteMany()
+  await prisma.sequelizeMeta.deleteMany();
+  await prisma.sessions.deleteMany();
 
-  console.log('Database cleared successfully')
+  console.log("Database cleared successfully");
 }
 
 async function main() {
@@ -154,19 +154,20 @@ async function main() {
     from: argv.dateFrom
       ? new Date(argv.dateFrom)
       : DEFAULT_CONFIG.dateRange.from,
-    to: argv.dateTo ? new Date(argv.dateTo) : DEFAULT_CONFIG.dateRange.to
-  }
+    to: argv.dateTo ? new Date(argv.dateTo) : DEFAULT_CONFIG.dateRange.to,
+  };
 
   // Validate date range
   if (isNaN(dateRange.from.getTime()) || isNaN(dateRange.to.getTime())) {
-    throw new Error('Invalid date format. Use YYYY-MM-DD')
+    throw new Error("Invalid date format. Use YYYY-MM-DD");
   }
 
   // Get configuration, using defaults for missing values
   const config = {
     clear: argv.clear || false,
     companyId: argv.companyId || DEFAULT_CONFIG.companyId,
-    associateCount: argv.count || argv.userCount || argv.useFaker || DEFAULT_CONFIG.userCount,
+    associateCount:
+      argv.count || argv.userCount || argv.useFaker || DEFAULT_CONFIG.userCount,
     leavesMultiplier: argv.leavesMultiplier || DEFAULT_CONFIG.leavesMultiplier,
     departmentCount: argv.departmentCount || DEFAULT_CONFIG.departmentCount,
     skipDefaultUser: argv.noDefaultUser || false,
@@ -174,63 +175,63 @@ async function main() {
     dateRange,
     bankHolidayCount: argv.bankHolidayCount || DEFAULT_CONFIG.bankHolidayCount,
     customSchedulePercent:
-      argv.customSchedulePercent || DEFAULT_CONFIG.customSchedulePercent
-  }
+      argv.customSchedulePercent || DEFAULT_CONFIG.customSchedulePercent,
+  };
 
   // Clear database if requested
   if (config.clear) {
-    await clearDatabase()
+    await clearDatabase();
   }
 
   // Handle user allowance adjustments if CSV file provided
   if (config.uaaFile) {
-    await updateUserAllowanceAdjustments(config.uaaFile)
-    if (!config.clear) return // Only return if not clearing, otherwise continue with seeding
+    await updateUserAllowanceAdjustments(config.uaaFile);
+    if (!config.clear) return; // Only return if not clearing, otherwise continue with seeding
   }
 
   // Check if company exists, if not create it
-  const company = await getOrCreateCompany(config.companyId)
+  const company = await getOrCreateCompany(config.companyId);
 
   // Create bank holidays
-  await createBankHolidays(company, config.bankHolidayCount, config.dateRange)
+  await createBankHolidays(company, config.bankHolidayCount, config.dateRange);
 
   // Create company default schedule
-  await createCompanySchedule(company)
+  await createCompanySchedule(company);
 
   // Create departments first
-  const departments = await createDepartments(company, config.departmentCount)
+  const departments = await createDepartments(company, config.departmentCount);
 
   // Always check for default user unless explicitly skipped
-  let defaultUser = null
+  let defaultUser = null;
   if (!config.skipDefaultUser) {
-    defaultUser = await createDefaultBobUser(company, departments[0])
+    defaultUser = await createDefaultBobUser(company, departments[0]);
     if (defaultUser) {
-      console.log('Default admin user exists:', defaultUser.email)
+      console.log("Default admin user exists:", defaultUser.email);
     }
-    defaultUser = await createDefaultAliceUser(company, departments[0])
+    defaultUser = await createDefaultAliceUser(company, departments[0]);
     if (defaultUser) {
-      console.log('Default manager user exists:', defaultUser.email)
+      console.log("Default manager user exists:", defaultUser.email);
     }
-    defaultUser = await createDefaultJoeUser(company, departments[0])
+    defaultUser = await createDefaultJoeUser(company, departments[0]);
     if (defaultUser) {
-      console.log('Default normal user exists:', defaultUser.email)
+      console.log("Default normal user exists:", defaultUser.email);
     }
   }
 
   // Create additional users
-  const users = await createUsers(company, departments, config.associateCount)
+  const users = await createUsers(company, departments, config.associateCount);
 
   // Create custom schedules for some users
-  await createUserSchedules(users, config.customSchedulePercent, company)
+  await createUserSchedules(users, config.customSchedulePercent, company);
 
   // Update departments with managers
   await updateDepartmentsWithManagers(
     departments,
-    users.filter(user => user.manager)
-  )
+    users.filter((user) => user.manager)
+  );
 
   // Create leave types
-  const leaveTypes = await createLeaveTypes(company)
+  const leaveTypes = await createLeaveTypes(company);
 
   // Create leaves
   await createLeaves(
@@ -238,10 +239,10 @@ async function main() {
     leaveTypes,
     config.leavesMultiplier,
     config.dateRange
-  )
+  );
 
   // Create messages for some users
-  await createMessages(users, config.dateRange)
+  await createMessages(users, config.dateRange);
 
   console.log(
     `Seed data created successfully:
@@ -249,58 +250,62 @@ async function main() {
     - Departments: ${departments.length}
     - Users: ${users.length}
     - Leaves multiplier: ${config.leavesMultiplier}x
-    - Date range: ${config.dateRange.from.toISOString().split('T')[0]} to ${
-      config.dateRange.to.toISOString().split('T')[0]
+    - Date range: ${config.dateRange.from.toISOString().split("T")[0]} to ${
+      config.dateRange.to.toISOString().split("T")[0]
     }
     - Bank holidays: ${config.bankHolidayCount}
     - Users with custom schedules: ${Math.round(config.customSchedulePercent)}%
-    ${!config.skipDefaultUser ? '- Default admin user (bob@local.eml) exists' : ''}`
-  )
+    ${
+      !config.skipDefaultUser
+        ? "- Default admin user (bob@local.eml) exists"
+        : ""
+    }`
+  );
 }
 
 async function createBankHolidays(company, count, dateRange) {
-  console.log('Creating bank holidays...')
-  const holidays = []
+  console.log("Creating bank holidays...");
+  const holidays = [];
 
   // Get all months in the date range
-  const months = []
-  const currentDate = new Date(dateRange.from)
+  const months = [];
+  const currentDate = new Date(dateRange.from);
   while (currentDate <= dateRange.to) {
-    const month = currentDate.getMonth() + 1
+    const month = currentDate.getMonth() + 1;
     if (!months.includes(month)) {
-      months.push(month)
+      months.push(month);
     }
-    currentDate.setMonth(currentDate.getMonth() + 1)
+    currentDate.setMonth(currentDate.getMonth() + 1);
   }
 
   // Randomly select months for holidays
   const selectedMonths = faker.helpers
     .arrayElements(months, Math.min(count, months.length))
-    .sort((a, b) => a - b) // Sort months chronologically
+    .sort((a, b) => a - b); // Sort months chronologically
 
   for (const month of selectedMonths) {
     // Get a random day in the month that falls within our date range
-    let date
-    let attempts = 0
-    const maxAttempts = 10
+    let date;
+    let attempts = 0;
+    const maxAttempts = 10;
 
     do {
-      const year = dateRange.from.getFullYear()
-      const daysInMonth = new Date(year, month, 0).getDate()
-      const day = faker.number.int({ min: 1, max: daysInMonth })
-      date = new Date(year, month - 1, day)
-      attempts++
+      const year = dateRange.from.getFullYear();
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const day = faker.number.int({ min: 1, max: daysInMonth });
+      date = new Date(year, month - 1, day);
+      attempts++;
     } while (
       (date < dateRange.from || date > dateRange.to) &&
       attempts < maxAttempts
-    )
+    );
 
-    if (attempts >= maxAttempts) continue
+    if (attempts >= maxAttempts) continue;
 
     // Get a random holiday name for this month
     const holidayName = faker.helpers.arrayElement(
       HOLIDAY_NAMES[month] || [`Holiday ${month}`]
-    )
+    );
 
     try {
       const holiday = await prisma.bank_holidays.create({
@@ -310,22 +315,22 @@ async function createBankHolidays(company, count, dateRange) {
           created_at: faker.date.past(),
           updated_at: faker.date.recent(),
           companies: {
-            connect: { id: company.id }
-          }
-        }
-      })
-      holidays.push(holiday)
+            connect: { id: company.id },
+          },
+        },
+      });
+      holidays.push(holiday);
       console.log(
         `Created bank holiday: ${holiday.name} on ${
-          holiday.date.toISOString().split('T')[0]
+          holiday.date.toISOString().split("T")[0]
         }`
-      )
+      );
     } catch (error) {
-      console.error(`Failed to create holiday for ${month}:`, error.message)
+      console.error(`Failed to create holiday for ${month}:`, error.message);
     }
   }
 
-  return holidays
+  return holidays;
 }
 
 async function createCompanySchedule(company) {
@@ -341,19 +346,19 @@ async function createCompanySchedule(company) {
       sunday: 2,
       created_at: faker.date.past(),
       updated_at: faker.date.recent(),
-      company_id: company.id // Use company_id directly instead of connect
-    }
-  })
-  console.log('Created company schedule')
-  return schedule
+      company_id: company.id, // Use company_id directly instead of connect
+    },
+  });
+  console.log("Created company schedule");
+  return schedule;
 }
 
 async function createUserSchedules(users, percentWithCustom, company) {
   // Calculate how many users should get custom schedules
-  const customCount = Math.round((users.length * percentWithCustom) / 100)
+  const customCount = Math.round((users.length * percentWithCustom) / 100);
 
   // Randomly select users to get custom schedules
-  const selectedUsers = faker.helpers.arrayElements(users, customCount)
+  const selectedUsers = faker.helpers.arrayElements(users, customCount);
 
   for (const user of selectedUsers) {
     // Create a random schedule
@@ -371,42 +376,41 @@ async function createUserSchedules(users, percentWithCustom, company) {
         created_at: faker.date.past(),
         updated_at: faker.date.recent(),
         users: {
-          connect: { id: user.id }
+          connect: { id: user.id },
         },
         companies: {
-          connect: { id: company.id } // Add company_id to ensure the connection
-        }
-      }
-    })
-    console.log(`Created custom schedule for user ${user.id}`)
+          connect: { id: company.id }, // Add company_id to ensure the connection
+        },
+      },
+    });
+    console.log(`Created custom schedule for user ${user.id}`);
   }
 }
 
 async function updateUserAllowanceAdjustments(filePath) {
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
-    const lines = fileContent.split('\n')
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const lines = fileContent.split("\n");
     // Skip header row and empty lines
-    const dataLines = lines.slice(1).filter(line => line.trim())
+    const dataLines = lines.slice(1).filter((line) => line.trim());
 
-    let updated = 0
-    let skipped = 0
+    let updated = 0;
+    let skipped = 0;
 
     for (const line of dataLines) {
-      const [year, adjustment, carried_over_allowance, user_id] = line.split(
-        ','
-      )
+      const [year, adjustment, carried_over_allowance, user_id] =
+        line.split(",");
 
       try {
         // Check if user exists
         const user = await prisma.users.findUnique({
-          where: { id: parseInt(user_id) }
-        })
+          where: { id: parseInt(user_id) },
+        });
 
         if (!user) {
-          console.log(`Skipping non-existent user ID: ${user_id}`)
-          skipped++
-          continue
+          console.log(`Skipping non-existent user ID: ${user_id}`);
+          skipped++;
+          continue;
         }
 
         // Upsert the allowance adjustment
@@ -414,54 +418,54 @@ async function updateUserAllowanceAdjustments(filePath) {
           where: {
             user_id_year: {
               user_id: parseInt(user_id),
-              year: parseInt(year)
-            }
+              year: parseInt(year),
+            },
           },
           update: {
             adjustment: parseFloat(adjustment),
-            carried_over_allowance: parseInt(carried_over_allowance)
+            carried_over_allowance: parseInt(carried_over_allowance),
           },
           create: {
             user_id: parseInt(user_id),
             year: parseInt(year),
             adjustment: parseFloat(adjustment),
             carried_over_allowance: parseInt(carried_over_allowance),
-            created_at: new Date()
-          }
-        })
-        updated++
+            created_at: new Date(),
+          },
+        });
+        updated++;
       } catch (error) {
-        console.error(`Error processing line: ${line}`, error)
-        skipped++
+        console.error(`Error processing line: ${line}`, error);
+        skipped++;
       }
     }
 
-    console.log(`Updated ${updated} allowance adjustments`)
-    console.log(`Skipped ${skipped} records`)
+    console.log(`Updated ${updated} allowance adjustments`);
+    console.log(`Skipped ${skipped} records`);
   } catch (error) {
-    console.error('Error reading or processing file:', error)
-    throw error
+    console.error("Error reading or processing file:", error);
+    throw error;
   }
 }
 
 async function createDefaultAliceUser(company, department) {
   // Try to find existing alice user
   const existingAlice = await prisma.users.findFirst({
-    where: { email: 'alice@local.eml' }
-  })
+    where: { email: "alice@local.eml" },
+  });
 
   if (existingAlice) {
-    return existingAlice
+    return existingAlice;
   }
 
   // Create bob if doesn't exist
-  console.log('Creating default normal user alice@local.eml')
+  console.log("Creating default normal user alice@local.eml");
   const defaultUser = await prisma.users.create({
     data: {
-      email: 'alice@local.eml',
-      password: hashifyPassword('managerpass'),
-      name: 'Alice',
-      lastname: 'Local',
+      email: "alice@local.eml",
+      password: hashifyPassword("managerpass"),
+      name: "Alice",
+      lastname: "Local",
       activated: true,
       admin: false,
       manager: true,
@@ -470,35 +474,35 @@ async function createDefaultAliceUser(company, department) {
       created_at: new Date(),
       updated_at: new Date(),
       companies: {
-        connect: { id: company.id }
+        connect: { id: company.id },
       },
       departments: {
-        connect: { id: department.id }
-      }
-    }
-  })
+        connect: { id: department.id },
+      },
+    },
+  });
 
-  return defaultUser
+  return defaultUser;
 }
 
 async function createDefaultJoeUser(company, department) {
   // Try to find existing joe user
   const existingJoe = await prisma.users.findFirst({
-    where: { email: 'joe@local.eml' }
-  })
+    where: { email: "joe@local.eml" },
+  });
 
   if (existingJoe) {
-    return existingJoe
+    return existingJoe;
   }
 
   // Create bob if doesn't exist
-  console.log('Creating default normal user joe@local.eml')
+  console.log("Creating default normal user joe@local.eml");
   const defaultUser = await prisma.users.create({
     data: {
-      email: 'joe@local.eml',
-      password: hashifyPassword('userpass'),
-      name: 'Joe',
-      lastname: 'Local',
+      email: "joe@local.eml",
+      password: hashifyPassword("userpass"),
+      name: "Joe",
+      lastname: "Local",
       activated: true,
       admin: false,
       manager: false,
@@ -507,35 +511,35 @@ async function createDefaultJoeUser(company, department) {
       created_at: new Date(),
       updated_at: new Date(),
       companies: {
-        connect: { id: company.id }
+        connect: { id: company.id },
       },
       departments: {
-        connect: { id: department.id }
-      }
-    }
-  })
+        connect: { id: department.id },
+      },
+    },
+  });
 
-  return defaultUser
+  return defaultUser;
 }
 
 async function createDefaultBobUser(company, department) {
   // Try to find existing bob user
   const existingBob = await prisma.users.findFirst({
-    where: { email: 'bob@local.eml' }
-  })
+    where: { email: "bob@local.eml" },
+  });
 
   if (existingBob) {
-    return existingBob
+    return existingBob;
   }
 
   // Create bob if doesn't exist
-  console.log('Creating default admin user bob@local.eml')
+  console.log("Creating default admin user bob@local.eml");
   const defaultUser = await prisma.users.create({
     data: {
-      email: 'bob@local.eml',
-      password: hashifyPassword('adminpass'),
-      name: 'Bob',
-      lastname: 'Local',
+      email: "bob@local.eml",
+      password: hashifyPassword("adminpass"),
+      name: "Bob",
+      lastname: "Local",
       activated: true,
       admin: true,
       manager: false,
@@ -544,21 +548,21 @@ async function createDefaultBobUser(company, department) {
       created_at: new Date(),
       updated_at: new Date(),
       companies: {
-        connect: { id: company.id }
+        connect: { id: company.id },
       },
       departments: {
-        connect: { id: department.id }
-      }
-    }
-  })
+        connect: { id: department.id },
+      },
+    },
+  });
 
-  return defaultUser
+  return defaultUser;
 }
 
 async function getOrCreateCompany(companyId) {
   let company = await prisma.companies.findUnique({
-    where: { id: companyId }
-  })
+    where: { id: companyId },
+  });
 
   if (!company) {
     company = await prisma.companies.create({
@@ -568,32 +572,32 @@ async function getOrCreateCompany(companyId) {
         country: faker.location.country(),
         start_of_new_year: faker.number.int({ min: 1, max: 12 }),
         created_at: faker.date.past(),
-        updated_at: faker.date.recent()
-      }
-    })
-    console.log(`Created new company with ID ${company.id}`)
+        updated_at: faker.date.recent(),
+      },
+    });
+    console.log(`Created new company with ID ${company.id}`);
   } else {
-    console.log(`Using existing company with ID ${company.id}`)
+    console.log(`Using existing company with ID ${company.id}`);
   }
 
-  return company
+  return company;
 }
 
 async function createDepartments(company, count) {
-  const departments = []
+  const departments = [];
 
   for (let i = 0; i < count; i++) {
-    const departmentName = faker.commerce.department()
+    const departmentName = faker.commerce.department();
 
     // Check if the department already exists
     let existingDepartment = await prisma.departments.findFirst({
       where: {
         name: departmentName,
         companies: {
-          id: company.id
-        }
-      }
-    })
+          id: company.id,
+        },
+      },
+    });
 
     // If the department doesn't exist, create it
     if (!existingDepartment) {
@@ -607,26 +611,29 @@ async function createDepartments(company, count) {
           updated_at: faker.date.recent(),
           personal: faker.number.float({ min: 0, max: 5, multipleOf: 0.5 }), // Random personal days
           companies: {
-            connect: { id: company.id }
-          }
-        }
-      })
-      departments.push(department)
-      console.log(`Created new department: ${department.name}`)
+            connect: { id: company.id },
+          },
+        },
+      });
+      departments.push(department);
+      console.log(`Created new department: ${department.name}`);
     } else {
-      console.log(`Department already exists: ${existingDepartment.name}`)
-      departments.push(existingDepartment) // Use the existing department
+      console.log(`Department already exists: ${existingDepartment.name}`);
+      departments.push(existingDepartment); // Use the existing department
     }
   }
 
-  return departments
+  return departments;
 }
 
 async function createRandomAllowanceAdjustments(users) {
   // Select 25% of users randomly
-  const selectedUsers = faker.helpers.arrayElements(users, Math.ceil(users.length * 0.25))
+  const selectedUsers = faker.helpers.arrayElements(
+    users,
+    Math.ceil(users.length * 0.25)
+  );
   const currentYear = new Date().getFullYear();
-  const years = [currentYear - 1, currentYear, currentYear + 1]
+  const years = [currentYear - 1, currentYear, currentYear + 1];
 
   for (const user of selectedUsers) {
     for (const year of years) {
@@ -635,23 +642,27 @@ async function createRandomAllowanceAdjustments(users) {
           user_id: user.id,
           year: year,
           adjustment: faker.number.float({ min: -5, max: 5, precision: 0.5 }),
-          personal_adjustment: faker.number.float({ min: -2, max: 2, precision: 0.5 }),
+          personal_adjustment: faker.number.float({
+            min: -2,
+            max: 2,
+            precision: 0.5,
+          }),
           carried_over_allowance: faker.number.int({ min: 0, max: 5 }),
-          created_at: new Date()
-        }
-      })
+          created_at: new Date(),
+        },
+      });
     }
-    console.log(`Created allowance adjustments for user ${user.id}`)
+    console.log(`Created allowance adjustments for user ${user.id}`);
   }
 }
 
 async function createUsers(company, departments, count) {
-  const users = []
+  const users = [];
 
   for (let i = 0; i < count; i++) {
-    const isAdmin = i === 0 // Make only first user admin if any
-    const isManager = i === 0 // Make only first user manager if any
-    const password = generateSecurePassword()
+    const isAdmin = i === 0; // Make only first user admin if any
+    const isManager = i === 0; // Make only first user manager if any
+    const password = generateSecurePassword();
 
     const user = await prisma.users.create({
       data: {
@@ -667,29 +678,29 @@ async function createUsers(company, departments, count) {
         created_at: faker.date.past(),
         updated_at: faker.date.recent(),
         companies: {
-          connect: { id: company.id }
+          connect: { id: company.id },
         },
         departments: {
-          connect: { id: faker.helpers.arrayElement(departments).id }
-        }
-      }
-    })
+          connect: { id: faker.helpers.arrayElement(departments).id },
+        },
+      },
+    });
     const dept = await prisma.users.findFirst({
       where: { email: user.email },
       include: { departments: true },
-    })
-    const deptName = dept?.departments?.name; 
+    });
+    const deptName = dept?.departments?.name;
 
-    console.log(`Created user ${i + 1} of ${count}`)
-    console.log(`Dept: ${deptName}`)
-    console.log(`e: ${user.email} p: ${password}`)
-    users.push(user)
+    console.log(`Created user ${i + 1} of ${count}`);
+    console.log(`Dept: ${deptName}`);
+    console.log(`e: ${user.email} p: ${password}`);
+    users.push(user);
   }
 
   // Create random allowance adjustments for 25% of users
-  await createRandomAllowanceAdjustments(users)
+  await createRandomAllowanceAdjustments(users);
 
-  return users
+  return users;
 }
 
 async function updateDepartmentsWithManagers(departments, managers) {
@@ -697,9 +708,9 @@ async function updateDepartmentsWithManagers(departments, managers) {
     await prisma.departments.update({
       where: { id: department.id },
       data: {
-        manager_id: faker.helpers.arrayElement(managers).id
-      }
-    })
+        manager_id: faker.helpers.arrayElement(managers).id,
+      },
+    });
   }
 }
 
@@ -707,63 +718,63 @@ async function createLeaveTypes(company) {
   // Generate dynamic leave type names using faker
   const generateLeaveName = () => {
     const prefixes = [
-      'Annual',
-      'Special',
-      'Personal',
-      'Emergency',
-      'Wellness',
-      'Family',
-      'Professional',
-      'Remote',
-      'Flexible',
-      'Extended'
-    ]
+      "Annual",
+      "Special",
+      "Personal",
+      "Emergency",
+      "Wellness",
+      "Family",
+      "Professional",
+      "Remote",
+      "Flexible",
+      "Extended",
+    ];
     const activities = [
-      'Leave',
-      'Break',
-      'Time Off',
-      'Rest',
-      'Holiday',
-      'Retreat',
-      'Absence',
-      'Pause',
-      'Recovery',
-      'Recharge'
-    ]
-    const suffixes = ['Day', 'Period', 'Session', 'Duration', 'Time']
+      "Leave",
+      "Break",
+      "Time Off",
+      "Rest",
+      "Holiday",
+      "Retreat",
+      "Absence",
+      "Pause",
+      "Recovery",
+      "Recharge",
+    ];
+    const suffixes = ["Day", "Period", "Session", "Duration", "Time"];
 
     return `${faker.helpers.arrayElement(
       prefixes
     )} ${faker.helpers.arrayElement(activities)} ${faker.helpers.arrayElement(
       suffixes
-    )}`
-  }
+    )}`;
+  };
 
   const colors = [
-    '#3498db',
-    '#e74c3c',
-    '#2ecc71',
-    '#f39c12',
-    '#9b59b6',
-    '#e67e22',
-    '#1abc9c',
-    '#e84393',
-    '#34495e',
-    '#16a085'
-  ]
+    "#3498db",
+    "#e74c3c",
+    "#2ecc71",
+    "#f39c12",
+    "#9b59b6",
+    "#e67e22",
+    "#1abc9c",
+    "#e84393",
+    "#34495e",
+    "#16a085",
+  ];
   const leaveTypes = Array.from({ length: 10 }, (_, index) => ({
     name: generateLeaveName(),
     color: faker.helpers.arrayElement(colors),
     use_allowance: faker.datatype.boolean(),
     is_special: faker.datatype.boolean({ probability: 0.3 }), // 30% chance of being special
     auto_approve: faker.datatype.boolean({ probability: 0.2 }), // 20% chance of auto-approve
-    manager_only: faker.datatype.boolean({ probability: 0.15 }) // 15% chance of manager only
-  }))
+    manager_only: faker.datatype.boolean({ probability: 0.15 }), // 15% chance of manager only
+  }));
 
-  const createdLeaveTypes = []
+  const createdLeaveTypes = [];
 
   for (let i = 0; i < leaveTypes.length; i++) {
-    const leaveType = leaveTypes[i]
+    const leaveType = leaveTypes[i];
     const createdLeaveType = await prisma.leave_types.create({
       data: {
         ...leaveType,
@@ -772,14 +783,14 @@ async function createLeaveTypes(company) {
         sort_order: i, // Add sort order based on index
         limit: faker.number.int({ min: 0, max: 30 }), // Random limit between 0-30 days
         companies: {
-          connect: { id: company.id }
-        }
-      }
-    })
-    createdLeaveTypes.push(createdLeaveType)
+          connect: { id: company.id },
+        },
+      },
+    });
+    createdLeaveTypes.push(createdLeaveType);
   }
 
-  return createdLeaveTypes
+  return createdLeaveTypes;
 }
 
 async function createMessages(users, dateRange) {
@@ -787,99 +798,99 @@ async function createMessages(users, dateRange) {
   const usersWithMessages = faker.helpers.arrayElements(
     users,
     Math.ceil(users.length * 0.3)
-  )
+  );
 
-  console.log('Creating messages...')
+  console.log("Creating messages...");
 
   for (const user of usersWithMessages) {
     // Create 1-5 messages per user
-    const messageCount = faker.number.int({ min: 1, max: 5 })
+    const messageCount = faker.number.int({ min: 1, max: 5 });
 
     for (let i = 0; i < messageCount; i++) {
       const created_at = faker.date.between({
         from: dateRange.from,
-        to: dateRange.to
-      })
+        to: dateRange.to,
+      });
 
       const subjects = [
-        'Technical Issue Report',
-        'Feature Request',
-        'System Bug Found',
-        'Question about Time Off',
-        'Feedback on Interface',
-        'Calendar Sync Issue',
-        'Account Access Problem',
-        'Mobile App Suggestion',
-        'Department Settings Question',
-        'Leave Balance Inquiry'
-      ]
+        "Technical Issue Report",
+        "Feature Request",
+        "System Bug Found",
+        "Question about Time Off",
+        "Feedback on Interface",
+        "Calendar Sync Issue",
+        "Account Access Problem",
+        "Mobile App Suggestion",
+        "Department Settings Question",
+        "Leave Balance Inquiry",
+      ];
 
       const messageTemplates = [
-        'I encountered an issue with {feature}. When I try to {action}, the system {problem}.',
-        'Would it be possible to add {feature}? This would help with {benefit}.',
-        'The {feature} seems to be showing incorrect data when {action}.',
-        'I need clarification on how to {action} in the system.',
-        'I have a suggestion to improve {feature} by {improvement}.'
-      ]
+        "I encountered an issue with {feature}. When I try to {action}, the system {problem}.",
+        "Would it be possible to add {feature}? This would help with {benefit}.",
+        "The {feature} seems to be showing incorrect data when {action}.",
+        "I need clarification on how to {action} in the system.",
+        "I have a suggestion to improve {feature} by {improvement}.",
+      ];
 
       const features = [
-        'calendar view',
-        'leave request form',
-        'notification system',
-        'department settings',
-        'user profile',
-        'reporting dashboard',
-        'time tracking',
-        'approval workflow',
-        'holiday schedule',
-        'absence history'
-      ]
+        "calendar view",
+        "leave request form",
+        "notification system",
+        "department settings",
+        "user profile",
+        "reporting dashboard",
+        "time tracking",
+        "approval workflow",
+        "holiday schedule",
+        "absence history",
+      ];
 
       const actions = [
-        'submit a request',
-        'view my schedule',
-        'update settings',
-        'generate reports',
-        'sync calendar',
-        'approve leaves',
-        'check balances',
-        'add team members',
-        'set preferences',
-        'export data'
-      ]
+        "submit a request",
+        "view my schedule",
+        "update settings",
+        "generate reports",
+        "sync calendar",
+        "approve leaves",
+        "check balances",
+        "add team members",
+        "set preferences",
+        "export data",
+      ];
 
       const problems = [
-        'shows an error message',
-        'freezes unexpectedly',
-        'loses the entered data',
-        'displays incorrect information',
-        'takes too long to respond'
-      ]
+        "shows an error message",
+        "freezes unexpectedly",
+        "loses the entered data",
+        "displays incorrect information",
+        "takes too long to respond",
+      ];
 
       const improvements = [
-        'adding more filtering options',
-        'simplifying the workflow',
-        'providing better notifications',
-        'including more details',
-        'making it more user-friendly'
-      ]
+        "adding more filtering options",
+        "simplifying the workflow",
+        "providing better notifications",
+        "including more details",
+        "making it more user-friendly",
+      ];
 
       const benefits = [
-        'improve team coordination',
-        'save time on administrative tasks',
-        'reduce confusion',
-        'make planning easier',
-        'increase productivity'
-      ]
+        "improve team coordination",
+        "save time on administrative tasks",
+        "reduce confusion",
+        "make planning easier",
+        "increase productivity",
+      ];
 
       // Generate message content
-      const messageTemplate = faker.helpers.arrayElement(messageTemplates)
+      const messageTemplate = faker.helpers.arrayElement(messageTemplates);
       const message = messageTemplate
-        .replace('{feature}', faker.helpers.arrayElement(features))
-        .replace('{action}', faker.helpers.arrayElement(actions))
-        .replace('{problem}', faker.helpers.arrayElement(problems))
-        .replace('{improvement}', faker.helpers.arrayElement(improvements))
-        .replace('{benefit}', faker.helpers.arrayElement(benefits))
+        .replace("{feature}", faker.helpers.arrayElement(features))
+        .replace("{action}", faker.helpers.arrayElement(actions))
+        .replace("{problem}", faker.helpers.arrayElement(problems))
+        .replace("{improvement}", faker.helpers.arrayElement(improvements))
+        .replace("{benefit}", faker.helpers.arrayElement(benefits));
 
       await prisma.user_messages.create({
         data: {
@@ -888,39 +899,39 @@ async function createMessages(users, dateRange) {
           subject: faker.helpers.arrayElement(subjects),
           message: message,
           status: faker.helpers.arrayElement([
-            'new',
-            'in-progress',
-            'resolved'
+            "new",
+            "in-progress",
+            "resolved",
           ]),
           created_at,
           updated_at: faker.date.between({
             from: created_at,
-            to: dateRange.to
+            to: dateRange.to,
           }),
           user_id: user.id,
-          company_id: user.company_id
-        }
-      })
+          company_id: user.company_id,
+        },
+      });
     }
-    console.log(`Created messages for user ${user.id}`)
+    console.log(`Created messages for user ${user.id}`);
   }
 }
 
 async function createLeaves(users, leaveTypes, multiplier, dateRange) {
   for (const user of users) {
-    const leaveCount = faker.number.int({ min: 1, max: 5 }) * multiplier
+    const leaveCount = faker.number.int({ min: 1, max: 5 }) * multiplier;
 
     for (let i = 0; i < leaveCount; i++) {
       const startDate = faker.date.between({
         from: dateRange.from,
-        to: dateRange.to
-      })
-      const endDate = new Date(startDate)
-      endDate.setDate(endDate.getDate() + faker.number.int({ min: 1, max: 7 }))
+        to: dateRange.to,
+      });
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + faker.number.int({ min: 1, max: 7 }));
 
       // Ensure end date doesn't exceed the date range
       if (endDate > dateRange.to) {
-        endDate.setTime(dateRange.to.getTime())
+        endDate.setTime(dateRange.to.getTime());
       }
 
       await prisma.leaves.create({
@@ -936,19 +947,19 @@ async function createLeaves(users, leaveTypes, multiplier, dateRange) {
           day_part_start: faker.helpers.arrayElement([1, 2, 3]), // 1: All day, 2: Morning, 3: Afternoon
           day_part_end: faker.helpers.arrayElement([1, 2, 3]),
           created_at: faker.date.past(),
-          updated_at: faker.date.recent()
-        }
-      })
-      console.log(`Created leave ${i + 1} of ${leaveCount}`)
+          updated_at: faker.date.recent(),
+        },
+      });
+      console.log(`Created leave ${i + 1} of ${leaveCount}`);
     }
   }
 }
 
 main()
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

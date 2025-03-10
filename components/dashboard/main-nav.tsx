@@ -1,48 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { appConfig } from "@/lib/config"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { LeaveRequestForm } from "@/components/dashboard/leave-request-form"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { appConfig } from "@/lib/config";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { LeaveRequestForm } from "@/components/dashboard/leave-request-form";
 
 interface MainNavProps {
-  onRefresh?: () => Promise<void>
-  userRole?: "ADMIN" | "MANAGER" | "USER"
-  isTeamViewHidden?: boolean
+  onRefresh?: () => Promise<void>;
+  userRole?: "ADMIN" | "MANAGER" | "USER";
 }
 
-export function MainNav({ onRefresh, userRole, isTeamViewHidden }: MainNavProps) {
+export function MainNav({ onRefresh, userRole }: MainNavProps) {
   const items = [
     {
       title: "Overview",
       href: "/dashboard",
     },
-    ...(!isTeamViewHidden || userRole === "ADMIN" || userRole === "MANAGER" ? [
-      {
-        title: "Team Calendar",
-        href: "/dashboard/team",
-      }
-    ] : []),
-    ...(userRole === "ADMIN" ? [
-      {
-        title: "Admin",
-        href: "/dashboard/admin",
-      }
-    ] : []),
-    ...(userRole === "MANAGER" || userRole === "ADMIN" ? [
-      {
-        title: "Approvals",
-        href: "/dashboard/approvals",
-      }
-    ] : [])
-  ]
+    ...(userRole === "ADMIN" || userRole === "MANAGER"
+      ? [
+          {
+            title: "Team Calendar",
+            href: "/dashboard/team",
+          },
+        ]
+      : []),
+    ...(userRole === "ADMIN"
+      ? [
+          {
+            title: "Admin",
+            href: "/dashboard/admin",
+          },
+        ]
+      : []),
+    ...(userRole === "MANAGER" || userRole === "ADMIN"
+      ? [
+          {
+            title: "Approvals",
+            href: "/dashboard/approvals",
+          },
+        ]
+      : []),
+  ];
 
-  const pathname = usePathname()
-  const [showLeaveRequest, setShowLeaveRequest] = useState(false)
+  const pathname = usePathname();
+  const [showLeaveRequest, setShowLeaveRequest] = useState(false);
 
   return (
     <nav className="flex items-center space-x-6 lg:space-x-8">
@@ -55,26 +60,24 @@ export function MainNav({ onRefresh, userRole, isTeamViewHidden }: MainNavProps)
           href={item.href}
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary",
-            pathname === item.href
-              ? "text-primary"
-              : "text-muted-foreground"
+            pathname === item.href ? "text-primary" : "text-muted-foreground"
           )}
         >
           {item.title}
         </Link>
       ))}
-        <Button 
-          onClick={() => setShowLeaveRequest(true)}
-          className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Request Leave
-        </Button>
-      <LeaveRequestForm 
-        open={showLeaveRequest} 
+      <Button
+        onClick={() => setShowLeaveRequest(true)}
+        className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white hover:opacity-90"
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Request Leave
+      </Button>
+      <LeaveRequestForm
+        open={showLeaveRequest}
         onOpenChange={setShowLeaveRequest}
         onSuccess={onRefresh}
       />
     </nav>
-  )
+  );
 }
