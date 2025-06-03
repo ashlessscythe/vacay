@@ -16,17 +16,17 @@ export default function Home() {
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
                     Manage Time Off with{" "}
-                    <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent animate-gradient">
+                    <span className="text-blue-600 dark:text-blue-400 font-extrabold relative inline-block">
                       Ease
                     </span>
                   </h1>
-                  <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+                  <p className="mx-auto max-w-[700px] text-zinc-700 md:text-xl dark:text-zinc-300 font-medium">
                     Streamline your vacation tracking, leave requests, and team management all in one place.
                   </p>
                 </div>
                 <div className="space-x-4">
                   <Link href="/auth/register">
-                    <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold">
                       Get Started
                     </Button>
                   </Link>
